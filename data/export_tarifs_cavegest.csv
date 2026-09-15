@@ -1,0 +1,129 @@
+CaveGest 4.2 - Export des grilles tarifaires au 12/01/2026 - ATTENTION : la grille EXPO est saisie en TTC;;;;;;;;;;
+
+Ref;Désignation;Contenant;Couleur;TVA;DEPC;CHR;EXPO;PART;SALON;Stock
+--- AOP ROUGES ---;;;;;;;;;;
+LANM3;La Pierre Blanche;BIB - 300.0;Rouge;20;13,32;11,72;15,98;15,72;;112
+COT196;Coteaux Nord 2019;Bouteille - 75.0;Rouge;20;  19,31 EUR;16,99;23,17;22,79;;28
+SEL208;Sélection du Domaine 2020;BIB - 300.0;BLANC;20;30,90;27,19;37,08;36,46;;619
+COT226;Coteaux Nord 2022;Bouteille - 75.0;Blanc;20;  17,69 EUR;15,57;21,23;20,87;;104
+CUV234;Cuvée Marie 2023;½ Bouteille - 37.5;blanc;20;11,77;10,36;14,12;13,89;12,95;396
+TRA195;Tradition 2019;Carton 6;;20;23,41;20,60;28,09;27,62;;607
+VIE205;Vieilles Vignes 2020;Bouteille - 75.0;Blanc;20;27,24;23,97;32,69;32,14;29,96;531
+CUV227;Cuvée Prestige 2022;Bouteille - 75.0;;20;24,91;21,92;29,89;29,39;;136
+TRA232;Tradition 2023;Litre - 100.0;blanc;20%;25,89;22,78;31,07;30,55;;187
+LENM2;Le Petit Clos;;blanc;20;16,63;14,63;19,96;19,62;;253
+CUVNM2;Cuvée Marie;;Rosé;20;5,50;4,84;6,60;6,49;;307
+LES205;Les Argiles 2020;Bouteille - 75.0;Blanc;20;26,16;23,02;31,39;30,87;;49
+HAUNM1;Haut Montcalm N.M.;Bouteille - 75.0;Rosé;20;33,01;29,05;39,61;;;7
+VIENM6;Vieilles Vignes;Bouteille - 75.0;Blanc;20;19,98;17,58;23,98;23,58;;409
+SOUS-TOTAL AOP ROUGES;;;;;;;;;;14
+--- AOP BLANCS ---;;;;;;;;;;
+LES197;Les Galets 2019;Litre - 100.0;Blanc;20;31,56;27,77;37,87;37,24;34,72;874
+GRA233;Grande Réserve 2023;Magnum - 150.0;Rosé;20;  16,97 EUR;14,93;20,36;20,02;18,67;878
+LE236;Le Clos Fleuri 2023;BIB - 300.0;Blanc;20;14,74;12,97;17,69;17,39;;208
+COT213;Coteaux Nord 2021;Magnum - 150.0;;20;31,02;27,30;37,22;36,60;34,12;819
+VIE202;Vieilles Vignes 2020;Magnum - 150.0;rouge;20;31,94;28,11;38,33;37,69;;819
+VIE226;Vieilles Vignes 2022;;blanc;20;31,42;27,65;37,70;37,08;;257
+HAU214;Haut Montcalm 2021;Litre - 100.0;Blanc;20;31,85;28,03;38,22;37,58;35,04;168
+FUTNM1;Fût de Chêne N.M.;Magnum - 150.0;rouge;20;7,13;6,27;8,56;8,41;7,84;94
+CUV194;Cuvée Prestige 2019;Bouteille - 75.0;Blanc;20;  25,69 EUR;22,61;30,83;30,31;;122
+SELNM6;Sélection du Domaine;Magnum - 150.0;Rouge;20;7,20;6,34;8,64;8,50;7,92;385
+CLONM6;Clos du Pech N.M.;Bouteille - 75.0;Blanc;20;23,91;21,04;28,69;28,21;26,30;0
+LES194;Les Argiles 2019;BIB - 300.0;BLANC;20;31,08;27,35;37,30;36,67;34,19;898
+TER232;Terrasses du Sud 2023;Litre - 100.0;rouge;20;24,97;21,97;29,96;29,46;27,47;845
+COT239;Coteaux Nord 2023;Magnum - 150.0;Blanc;20;17,46;15,36;20,95;20,60;;359
+LESNM3;Les Grands Ormes;Litre - 100.0;;20;20,01;17,61;24,01;23,61;;639
+TRANM8;Tradition N.M.;½ Bouteille - 37.5;Rouge;20;15,19;13,37;18,23;17,92;;321
+SOUS-TOTAL AOP BLANCS;;;;;;;;;;16
+--- IGP ---;;;;;;;;;;
+
+TERNM4;Terre Rouge;Magnum - 150.0;Rosé;20;10,57;9,30;12,68;12,47;;347
+FUTNM2;Fût de Chêne N.M.;Magnum - 150.0;rouge;20;  30,66 EUR;26,98;36,79;36,18;33,73;390
+LA223;La Pierre Blanche 2022;BIB - 300.0;;20;15,57;13,70;18,68;18,37;17,13;852
+CLO237;Clos du Pech 2023;BIB - 500.0;BLANC;20;30,48;26,82;36,58;35,97;33,53;468
+CUVNM3;Cuvée Prestige N.M.;Magnum - 150.0;;20;31,18;27,44;37,42;36,79;34,30;816
+CLO233 ;Clos du Pech 2023;½ Bouteille - 37.5;rouge;20;22,87;20,13;27,44;26,99;25,16;114
+BEL209;Belles Rives 2020;Litre - 100.0;blanc;20;12,17;10,71;14,60;14,36;13,39;8
+SEL219;Sélection du Domaine 2021;Bouteille - 75.0;blanc;20;24,57;21,62;29,48;28,99;;316
+LES239;Les Galets 2023;Litre - 100.0;rouge;20;17,55;15,44;21,06;20,71;19,31;331
+LES206;Les Galets 2020;Magnum - 150.0;Rosé;20;22,32;19,64;26,78;26,34;24,55;205
+LENM5;Le Clos Fleuri N.M.;½ Bouteille - 37.5;Blanc;20;20,20;17,78;24,24;23,84;22,22;347
+LES211;Les Argiles 2021;½ Bouteille - 37.5;blanc;20;28,37;24,97;34,04;33,48;31,21;482
+CUVNM9;Cuvée Emeline N.M.;Litre - 100.0;;20;33,13;29,15;39,76;39,09;;891
+SEL236;Sélection du Domaine 2023;Bouteille - 75.0;blanc;20;19,03;16,75;22,84;22,46;;289
+LE201;Le Clos Fleuri 2020;Magnum - 150.0;Rouge;20;  19,18 EUR;16,88;23,02;;21,10;631
+LA203;La Pierre Blanche 2020;Bouteille - 75.0;Rouge;20;13,81;12,15;16,57;16,30;15,19;71
+CUV218;Cuvée Prestige 2021;;BLANC;20;21,56;18,97;25,87;25,44;;540
+LES199;Les Argiles 2019;½ Bouteille - 37.5;Rouge;20;29,10;25,61;34,92;34,34;;333
+SOUS-TOTAL IGP;;;;;;;;;;18
+--- VIN DE FRANCE ---;;;;;;;;;;
+GRA226;Grande Réserve 2022;BIB - 500.0;;20;5,24;4,61;6,29;6,18;;491
+COT237;Coteaux Nord 2023;;BLANC;20;18,11;15,94;21,73;21,37;;815
+FUTNM7;Fût de Chêne N.M.;6 x 75;blanc;20;11,02;9,70;13,22;13;12,12;411
+CLO238;Clos du Pech 2023;Litre - 100.0;Blanc;20;19,33;17,01;23,20;22,81;;853
+COT207;Coteaux Nord 2020;;blanc;20;26,17;23,03;31,40;30,88;;750
+LA211;La Pierre Blanche 2021;;Rosé;20;21,31;18,75;25,57;25,15;;468
+LE206;Le Petit Clos 2020;;Blanc;20;27,99;24,63;33,59;33,03;;237
+CUV216;Cuvée Marie 2021;BIB - 300.0;BLANC;20;7,48;6,58;8,98;8,83;;421
+LES221;Les Galets 2022;Magnum - 150.0;BLANC;20;18,68;16,44;22,42;22,04;;650
+LESNM9;Les Grands Ormes N.M.;½ Bouteille - 37.5;Rosé;20;  27,52 EUR;24,22;33,02;32,47;;228
+LES193;Les Galets 2019;Magnum - 150.0;Rouge;20;31,41;27,64;37,69;37,06;34,55;532
+SEL213;Sélection du Domaine 2021;Magnum - 150.0;rouge;20;14,58;12,83;17,50;17,20;16,04;703
+HAU214;Tradition 2019;Litre - 100.0;Rouge;20;34,35;6,49;8,84;8,70;8,11;868
+CLO198;Clos du Pech 2019;Bouteille - 75.0;Rosé;20;22,01;19,37;26,41;25,97;;882
+SELNM3;Sélection du Domaine;Bouteille - 75.0;rouge;20;30,73;27,04;36,88;36,26;;477
+LANM1;La Pierre Blanche N.M.;Litre - 100.0;Rouge;20;19,16;16,86;22,99;22,61;21,08;52
+CLONM5;Clos du Pech N.M.;Bouteille - 75.0;;20;18,79;16,54;22,55;22,17;;128
+SEL197;Sélection du Domaine 2019;Bouteille - 75.0;rouge;20;  21,59 EUR;19,00;25,91;25,48;23,75;575
+VIE199;Vieilles Vignes 2019;Bouteille - 75.0;BLANC;20;15,55;13,68;18,66;18,35;;576
+COT231;Coteaux Nord 2023;½ Bouteille - 37.5;rouge;20;  31,75 EUR;27,94;38,10;37,46;;844
+TERNM9;Terre Rouge;½ Bouteille - 37.5;blanc;20;12,31;10,83;14,77;14,53;13,54;54
+CUV193;Cuvée Prestige 2019;½ Bouteille - 37.5;BLANC;20;33,45;29,44;40,14;39,47;;318
+SOUS-TOTAL VIN DE FRANCE;;;;;;;;;;22
+--- EFFERVESCENTS ---;;;;;;;;;;
+TER206;Terre Rouge 2020;BIB - 300.0;Blanc;20;21,84;19,22;26,21;25,77;;553
+LES204;Les Grands Ormes 2020;Bouteille - 75.0;rouge;20;15,14;13,32;18,17;17,87;;679
+CUV228;Cuvée Marie 2022;;Rouge;20;22,62;19,91;27,14;26,69;;406
+VIENM9;Vieilles Vignes N.M.;Magnum - 150.0;Rouge;20;25,70;22,62;30,84;30,33;28,27;353
+COTNM2;Coteaux Nord;Bouteille - 75.0;blanc;20;22,17;19,51;26,60;26,16;;458
+FUT209;Fût de Chêne 2020;Bouteille - 75.0;blanc;20;20,90;18,39;25,08;24,66;22,99;528
+CUV227;Cuvée Marie 2022;Magnum - 150.0;BLANC;20;  12,27 EUR;10,80;14,72;14,48;;647
+CUV192;Cuvée Prestige 2019;BIB - 300.0;Rouge;20;  19,97 EUR;17,57;23,96;;;556
+GRA222;Grande Réserve 2022;Magnum - 150.0;Rouge;20;27,48;24,18;32,98;32,43;30,23;437
+VIE211;Vieilles Vignes 2021;Bouteille - 75.0;Blanc;20;25,16;22,14;30,19;29,69;27,68;237
+LENM6;Le Clos Fleuri;Bouteille - 75.0;blanc;20;29,70;26,14;35,64;35,05;32,67;613
+GRA235;Grande Réserve 2023;;;20;  28,52 EUR;25,10;34,22;33,65;31,37;110
+LESNM5;Les Galets;Litre - 100.0;BLANC;20;  32,66 EUR;28,74;39,19;38,54;35,93;79
+FUT219;Fût de Chêne 2021;Litre - 100.0;;20;13,50;11,88;16,20;15,93;;686
+LE228;Le Clos Fleuri 2022;BIB - 500.0;BLANC;20;31,10;27,37;37,32;36,70;34,21;632
+TRA205;Tradition 2020;BIB - 300.0;Blanc;20;10,83;9,53;13;12,78;;354
+TRA228;Tradition 2022;BIB - 300.0;Blanc;20;15;13,20;18;17,70;;358
+CUV228;Cuvée Emeline 2022;BIB - 500.0;Blanc;20;8,58;7,55;10,30;10,12;;333
+VIE224;Vieilles Vignes 2022;;Rosé;20;  5,11 EUR;4,50;6,13;6,03;5,62;122
+BELNM3;Belles Rives;½ Bouteille - 37.5;Rosé;20;29,66;26,10;35,59;35;32,63;375
+TER211;Terrasses du Sud 2021;BIB - 300.0;blanc;20;8,19;7,21;9,83;9,66;;690
+SOUS-TOTAL EFFERVESCENTS;;;;;;;;;;21
+--- DIVERS ---;;;;;;;;;;
+VIENM6;Eau de source N.M.;Magnum - 150.0;;5,50;  25,64 EUR;22,56;27,05;30,26;;492
+TRA231;Eau de source 2023;Magnum - 150.0;blanc;5,50;11,66;10,26;12,30;13,76;;666
+LES209;Les Galets 2020;;BLANC;20;11,22;9,87;13,46;13,24;12,34;5
+CLONM2;Clos du Pech N.M.;½ Bouteille - 37.5;Blanc;20;27,46;24,16;32,95;32,40;30,21;614
+LES194;Les Argiles 2019;Bouteille - 75.0;BLANC;20;26,70;23,50;32,04;31,51;29,37;290
+LE234;Le Petit Clos 2023;Litre - 100.0;rouge;20;12,76;11,23;15,31;15,06;;710
+CUV207;Eau de source 2020;BIB - 300.0;Rosé;5,50;33,28;29,29;35,11;39,27;36,61;552
+CUV225;Eau de source 2022;BIB - 500.0;;5,50;21,03;18,51;22,19;24,82;23,13;569
+CUV239;Eau de source 2023;BIB - 300.0;blanc;5,50;29,39;25,86;31,01;34,68;;660
+LA226;Eau de source 2022;½ Bouteille - 37.5;blanc;5,50;22,81;20,07;24,06;26,92;25,09;237
+BEL205;Belles Rives 2020;BIB - 500.0;Rosé;20;6,72;5,91;8,06;7,93;7,39;221
+LES191;Les Argiles 2019;Litre - 100.0;Rosé;20;30,41;26,76;36,49;35,88;;164
+TER229;Terrasses du Sud 2022;;Rouge;20;24,09;21,20;28,91;28,43;26,50;871
+COTNM3;Coteaux Nord N.M.;Bouteille - 75.0;;20;23,69;20,85;28,43;27,95;;377
+TRA197;Nectar de pomme 2019;Bouteille - 75.0;rouge;5,50;10,83;9,53;11,43;12,78;11,91;818
+TER232;Eau de source 2023;Bouteille - 75.0;blanc;5,50;9,35;8,23;9,86;11,03;;33
+CUVNM8;Cuvée Prestige N.M.;BIB - 500.0;Rouge;20;16,14;14,20;19,37;19,05;;654
+HAU229;Jus de raisin bio 2022;Bouteille - 75.0;rouge;5,50;12,26;10,79;12,93;14,47;;824
+VIE214;Nectar de pomme 2021;Bouteille - 75.0;Rosé;5,50;28,97;25,49;30,56;34,18;31,87;238
+SEL205;Sélection du Domaine 2020;Bouteille - 75.0;;20;32,69;28,77;39,23;38,57;35,96;289
+CLONM3;Clos du Pech N.M.;Bouteille - 75.0;Blanc;20;21,53;18,95;25,84;25,41;23,68;392
+VIE212;Vieilles Vignes 2021;BIB - 500.0;Rosé;20;16,82;14,80;20,18;19,85;18,50;38
+SOUS-TOTAL DIVERS;;;;;;;;;;22
