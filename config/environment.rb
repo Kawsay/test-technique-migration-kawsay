@@ -45,11 +45,15 @@ ActiveRecord::Base.establish_connection(DatabaseConfig.resolve)
 
 ActiveRecord::Base.logger = Logger.new(ENV["AR_LOG"] ? $stdout : IO::NULL)
 
-%w[app/models lib].each do |dir|
+# Locale globale laissée en :en (messages ActiveRecord) ; le rapport traduit explicitement en :fr.
+I18n.load_path += Dir[File.join(APP_ROOT, "config", "locales", "*.yml")]
+I18n.available_locales = %i(en fr)
+
+%w(app/models lib).each do |dir|
   Dir[File.join(APP_ROOT, dir, "**", "*.rb")].sort.each { |file| require file }
 end
 
-%w[importer.rb importer/normalization.rb importer/base.rb].each do |file|
+%w(importer.rb importer/normalization.rb importer/base.rb).each do |file|
   require File.join(APP_ROOT, "app", "services", file)
 end
 

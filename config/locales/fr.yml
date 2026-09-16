@@ -1,0 +1,10 @@
+fr:
+  migration:
+    levels:
+      rejected: "Non repris"
+      repaired: "Repris avec correction automatique"
+      suspect: "Repris, à vérifier"
+      info: "Pour information"
+    codes: {}
+    # Une clé par code émis, ajoutée avec la règle qui l'émet. Exemple :
+    #   zip_padded: "Code postal complété d'un zéro initial (perdu par Excel)"
