@@ -7,16 +7,41 @@ require "fileutils"
 require "logger"
 require "roo"
 require "set"
+require "dotenv"
+require "uri"
 
 APP_ROOT = File.expand_path("..", __dir__)
+$LOAD_PATH.unshift(APP_ROOT) unless $LOAD_PATH.include?(APP_ROOT)
+
 DATA_DIR = File.join(APP_ROOT, "data")
 
-DEFAULT_DATABASE_URL = "postgres://localhost:5432/baqio_migration".freeze
+Dotenv.load(File.join(APP_ROOT, ".env"))
 
-database_url = ENV.fetch("DATABASE_URL", DEFAULT_DATABASE_URL)
-database_url = "#{database_url}_test" if ENV["APP_ENV"] == "test"
+module DatabaseConfig
+  DEFAULT_NAME = "baqio_migration".freeze
 
-ActiveRecord::Base.establish_connection(database_url)
+  def self.resolve
+    test_env = ENV["APP_ENV"] == "test"
+
+    if ENV["DATABASE_URL"].present?
+      uri = URI.parse(ENV["DATABASE_URL"])
+      uri.path = "#{uri.path}_test" if test_env
+      uri.to_s
+    else
+      name = ENV.fetch("DATABASE_NAME", DEFAULT_NAME)
+      {
+        adapter:  "postgresql",
+        database: test_env ? "#{name}_test" : name,
+        host:     ENV["PG_HOST"],
+        port:     ENV["PG_PORT"],
+        username: ENV["PG_USER"],
+        password: ENV["PG_PASSWORD"]
+      }.compact
+    end
+  end
+end
+
+ActiveRecord::Base.establish_connection(DatabaseConfig.resolve)
 
 ActiveRecord::Base.logger = Logger.new(ENV["AR_LOG"] ? $stdout : IO::NULL)
 
@@ -29,3 +54,4 @@ end
 end
 
 Dir[File.join(APP_ROOT, "app", "services", "**", "*.rb")].sort.each { |file| require file }
+

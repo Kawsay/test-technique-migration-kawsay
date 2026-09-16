@@ -1,0 +1,16 @@
+---
+:require:
+  - ./config/environment.rb
+:model_dir:
+  - app/models
+:models: true
+:position: before
+:show_indexes: true
+:show_foreign_keys: true
+:exclude_tests: true
+:exclude_factories: true
+:exclude_fixtures: true
+:exclude_serializers: true
+:exclude_scaffolds: true
+:exclude_controllers: true
+:exclude_helpers: true

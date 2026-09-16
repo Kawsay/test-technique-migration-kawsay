@@ -9,7 +9,7 @@ namespace :db do
     name   = config.database
 
     ActiveRecord::Base.establish_connection(config.configuration_hash.merge(database: "postgres"))
-    ActiveRecord::Base.connection.drop_database(name) rescue nil
+    ActiveRecord::Base.connection.drop_database(name)
     ActiveRecord::Base.connection.create_database(name)
     ActiveRecord::Base.establish_connection(config)
 

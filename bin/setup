@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+bundle install
+
+if ! bundle exec rake db:setup; then
+  cat <<'MSG'
+
+Connexion à PostgreSQL impossible. Deux solutions :
+  - Créer un rôle pour votre utilisateur système (Linux) :
+      sudo -u postgres createuser --superuser "$USER"
+  - Ou renseigner vos identifiants dans .env (PGUSER, PGPASSWORD, PGHOST)
+Puis relancez bin/setup.
+MSG
+  exit 1
+fi
+
+echo "Setup terminé."

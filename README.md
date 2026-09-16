@@ -1,3 +1,15 @@
+## Installation
+
+Prérequis : Ruby 3.3.4, PostgreSQL en cours d'exécution.
+
+```bash
+bin/setup
+```
+
+Aucune configuration n'est nécessaire sur une installation PostgreSQL standard.
+Si la connexion échoue, renseignez vos identifiants dans `.env`.
+
+
 # Test technique — Développeur·se Intégrations & Migration de données
 
 Merci de l'intérêt que vous portez au poste.
