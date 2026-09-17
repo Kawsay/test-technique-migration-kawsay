@@ -5,6 +5,8 @@ require_relative "../config/environment"
 ActiveRecord::Migration.verbose = false
 load File.join(APP_ROOT, "db", "schema.rb")
 
+Dir[File.join(__dir__, "support", "**", "*.rb")].sort.each { |file| require file }
+
 RSpec.configure do |config|
   config.expect_with(:rspec) { |c| c.syntax = :expect }
   config.disable_monkey_patching!
