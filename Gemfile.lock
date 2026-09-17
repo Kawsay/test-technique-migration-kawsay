@@ -34,6 +34,8 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.3.8)
     connection_pool (3.0.2)
+    countries (8.1.0)
+      unaccent (~> 0.3)
     csv (3.3.6)
     diff-lcs (1.6.2)
     dotenv (3.2.0)
@@ -108,6 +110,7 @@ GEM
     pg (1.6.3-x86_64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
+    phonelib (0.10.27)
     pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -137,6 +140,7 @@ GEM
     timeout (0.6.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    unaccent (0.4.0)
     zeitwerk (2.8.3)
 
 PLATFORMS
@@ -156,11 +160,13 @@ DEPENDENCIES
   amazing_print
   annotaterb
   caxlsx
+  countries
   csv
   dotenv
   dry-monads (~> 1.6)
   dry-validation (~> 1.11)
   pg (~> 1.5)
+  phonelib
   pry
   rake
   roo (~> 2.10)

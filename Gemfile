@@ -14,6 +14,9 @@ gem "dry-monads", "~> 1.6"
 
 gem "dotenv"
 
+gem "countries" # codes et noms de pays ISO 3166-1
+gem "phonelib"  # validation et formatage des téléphones (données libphonenumber)
+
 group :development, :test do
   gem "pry"
   gem "rspec", "~> 3.13"
