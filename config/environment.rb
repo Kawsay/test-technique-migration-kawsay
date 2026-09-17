@@ -56,7 +56,8 @@ I18n.available_locales = %i(en fr)
   Dir[File.join(APP_ROOT, dir, "**", "*.rb")].sort.each { |file| require file }
 end
 
-%w(importer.rb importer/normalization.rb importer/base.rb).each do |file|
+# TODO: consider Zeitwerk
+%w(importer.rb importer/normalization.rb importer/base.rb importer/layout.rb importer/layout/base.rb).each do |file|
   require File.join(APP_ROOT, "app", "services", file)
 end
 
