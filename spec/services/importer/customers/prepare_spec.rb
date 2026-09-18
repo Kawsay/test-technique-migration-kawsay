@@ -260,4 +260,11 @@ RSpec.describe Importer::Customers::Prepare do
       )
     end
   end
+
+  it "carries every attribute it is responsible for" do
+    shipping   = { shipping_address1: "2 rue du Port", shipping_zip: 13002, shipping_country: "France" }
+    attributes = attributes_of(shipping)
+
+    expect(attributes.keys).to match_array(Importer::Customers::ATTRIBUTES)
+  end
 end
