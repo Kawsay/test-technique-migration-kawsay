@@ -9,13 +9,13 @@ class Importer::Adapter::Base
     end
   end
 
+  def file_name
+    File.basename(@path)
+  end
+
   private
 
   def read_rows
     raise NotImplementedError, "#{self.class} must implement #read_rows"
-  end
-
-  def file_name
-    File.basename(@path)
   end
 end

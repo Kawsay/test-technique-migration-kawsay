@@ -29,12 +29,22 @@ class Importer::Cavegest::CustomersLayout < Importer::Layout::Base
     [26, :unusable,              "Inutilisable"],
   ].freeze
 
+  DEFAULT_COUNTRY   = "FR".freeze         # pays des téléphones écrits sans indicatif
+
   TOTAL_MARKER      = "TOTAL".freeze
   EMPTY_MARKERS     = ["N/C"].freeze      # valeurs signifiant « non communiqué »
   DATE_FORMAT       = "%d/%m/%Y".freeze   # dates saisies en texte
-  FLAG_TRUE_VALUES  = [1, "1"].freeze     # colonne « Inutilisable »
+
+  FLAG_TRUE_VALUES  = [1, "1"].freeze
   FLAG_FALSE_VALUES = [0, "0"].freeze
-  DEFAULT_COUNTRY   = "FR".freeze         # pays des téléphones écrits sans indicatif
+
+  KIND_CODES = {
+    "C" => "customer",
+    "F" => "supplier",
+    "P" => "prospect",
+    "R" => "customer"  # « Revendeur » : pas d'équivalent dans Baqio, à notifier
+  }.freeze
+  KIND_NOTICES = { "R" => :kind_reseller_as_customer }.freeze
 
   private
 

@@ -110,6 +110,6 @@ class Importer::Layout::Base
   end
 
   def empty?(row)
-    row.values.all? { |value| value.nil? }
+    row.values.all?(&:nil?)
   end
 end

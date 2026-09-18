@@ -7,6 +7,12 @@ RSpec.describe Importer::Adapter::Base do
     expect { adapter.rows }.to raise_error(NotImplementedError, /must implement #read_rows/)
   end
 
+  it "exposes the name of the file, without its directory" do
+    adapter = Class.new(described_class).new(File.join("data", "clients", "produits.txt"))
+
+    expect(adapter.file_name).to eq("produits.txt")
+  end
+
   # Adaptateur minimal
   context "with a subclass reading its format" do
     let(:adapter_class) do

@@ -190,7 +190,6 @@ RSpec.describe Importer::Parsers do
       end
 
       # Date.strptime lirait "01/02/20" comme l'an 20 et ignorerait " abc".
-      # Date.strptime lirait "01/02/20" comme l'an 20 et ignorerait " abc".
       ["31/02/2020", "2020-02-01", "01/02/20", "01/02/2020 abc", "1/2/2020", 43831].each do |raw|
         it "fails on #{raw.inspect}" do
           expect(date(raw)).to eq(Failure(:date_invalid))
