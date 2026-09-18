@@ -31,6 +31,8 @@ class Importer::Cavegest::CustomersLayout < Importer::Layout::Base
 
   DEFAULT_COUNTRY   = "FR".freeze         # pays des téléphones écrits sans indicatif
 
+  SHEET             = "Feuil1".freeze     # feuille supposée comme étant par défaut suite à un export
+
   TOTAL_MARKER      = "TOTAL".freeze
   EMPTY_MARKERS     = ["N/C"].freeze      # valeurs signifiant « non communiqué »
   DATE_FORMAT       = "%d/%m/%Y".freeze   # dates saisies en texte
