@@ -56,6 +56,10 @@ class Importer::Layout::Base
     ignored_columns
   end
 
+  def skipped_rows
+    @data_rows.select { |row| !empty?(row) && skipped_row?(row) }
+  end
+
   private
 
   # Doit renvoyer les colonnes attendues : Array de [position, champ, en-tête attendu],

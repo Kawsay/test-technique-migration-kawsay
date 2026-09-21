@@ -38,6 +38,33 @@ RSpec.describe Importer::Layout::Base do
       expect(records.map { |record| record.cells[:reference] }).to eq(["TOTAL"])
     end
 
+    it "skips no row by default" do
+      expect(layout_with(rows([header, ["REF1", "Vin rouge"], []])).skipped_rows).to be_empty
+    end
+
+    context "with a subclass skipping its total rows" do
+      let(:layout_class) do
+        Class.new(described_class) do
+          private
+
+          def columns
+            [[0, :reference, "Ref"], [1, :name, "Nom"]]
+          end
+
+          def skipped_row?(row)
+            row.values.first == "TOTAL"
+          end
+        end
+      end
+
+      it "exposes the skipped rows, without the empty ones" do
+        layout = layout_with(rows([header, ["REF1", "Vin rouge"], [], ["TOTAL", "1 produit"]]))
+
+        expect(layout.records.map { |record| record.line }).to eq([2])
+        expect(layout.skipped_rows.map { |row| [row.line, row.values] }).to eq([[4, ["TOTAL", "1 produit"]]])
+      end
+    end
+
     it "returns no records for a file with only a header" do
       expect(layout_with(rows([header])).records).to be_empty
     end
