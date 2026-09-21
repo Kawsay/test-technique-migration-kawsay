@@ -24,6 +24,16 @@ d'écrire du nouveau code.
 
 ---
 
+## Questions
+
+Si un point métier vous bloque, vous pouvez écrire à quentin@baqio.com.
+
+En situation réelle, ces questions iraient au client : nous y répondrons comme
+il le ferait. Les choix techniques, en revanche, vous appartiennent — nous en
+discuterons lors de l'entretien.
+
+---
+
 ## Ce que nous évaluons
 
 La justesse des données en base, ce que vous faites des données douteuses, la
