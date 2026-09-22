@@ -33,8 +33,9 @@ class MigrationReport
     end
   end
 
-  # Bilan de l'écriture en base pour un fichier, calculé une seule fois après l'écriture,
-  # en comparant les enregistrements à écrire avec ceux déjà présents.
+  # Bilan de l'écriture en base d'un type d'enregistrement lu dans un fichier (ex. les produits du fichier
+  # des tarifs), calculé une seule fois après l'écriture, en comparant les enregistrements à écrire avec
+  # ceux déjà présents.
   #
   # accepted  - Integer, enregistrements prêts à être écrits : ils ont passé les contrôles et
   #             le dédoublonnage. Ce n'est pas le nombre de lignes lues : les lignes rejetées
@@ -71,8 +72,9 @@ class MigrationReport
     issue
   end
 
-  def record_tally(source, **counts)    = write_once(@tallies,  source, Tally.new(**counts))
-  def record_declared(source, **totals) = write_once(@declared, source, totals.freeze)
+  # entity - Symbol, type d'enregistrement écrit (ex. :products) : un fichier peut en alimenter plusieurs.
+  def record_tally(source, entity, tally) = write_once(@tallies, [source, entity], tally)
+  def record_declared(source, **totals)   = write_once(@declared, source, totals.freeze)
 
   def issues    = @issues.dup.freeze
   def tallies   = @tallies.dup.freeze
@@ -86,9 +88,9 @@ class MigrationReport
 
   private
 
-  def write_once(store, source, value)
-    raise ArgumentError, "déjà enregistré pour #{source}" if store.key?(source)
+  def write_once(store, key, value)
+    raise ArgumentError, "déjà enregistré pour #{key}" if store.key?(key)
 
-    store[source] = value
+    store[key] = value
   end
 end

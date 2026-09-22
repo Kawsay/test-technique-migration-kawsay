@@ -98,4 +98,22 @@ RSpec.describe MigrationReport do
       expect(report.issues.first).to be_frozen
     end
   end
+
+  describe "#record_tally" do
+    let(:tally) { MigrationReport::Tally.new(accepted: 2, created: 2, updated: 0, unchanged: 0) }
+
+    it "records one tally per file and type of record" do
+      report.record_tally(source, :products, tally)
+      report.record_tally(source, :product_prices, tally)
+
+      expect(report.tallies.keys).to eq([[source, :products], [source, :product_prices]])
+    end
+
+    # Un rapport décrit une seule exécution : un rejeu s'écrit dans un nouveau rapport.
+    it "refuses a second tally for the same file and type of record" do
+      report.record_tally(source, :products, tally)
+
+      expect { report.record_tally(source, :products, tally) }.to raise_error(ArgumentError, /déjà enregistré/)
+    end
+  end
 end

@@ -1,4 +1,7 @@
 class Importer::Summary
+  # Type d'enregistrement écrit => libellé du bilan.
+  ENTITIES = { customers: "clients" }.freeze
+
   def initialize(report)
     @report = report
   end
@@ -10,8 +13,8 @@ class Importer::Summary
   private
 
   def tallies
-    @report.tallies.map do |source, tally|
-      "#{source} : #{tally.created} créés, #{tally.updated} mis à jour, #{tally.unchanged} inchangés"
+    @report.tallies.map do |(source, entity), tally|
+      "#{source}, #{ENTITIES.fetch(entity)} : #{tally.created} créés, #{tally.updated} mis à jour, #{tally.unchanged} inchangés"
     end
   end
 

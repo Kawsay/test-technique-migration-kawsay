@@ -1,7 +1,7 @@
 # Écrit en base les clients préparés par Importer::Customers::Prepare, sans jamais créer de doublon.
 #
-# L'écriture est idempotente : rejouer l'import sur le même fichier ne modifie aucune ligne,
-# updated_at compris. Seules les lignes nouvelles ou réellement modifiées sont écrites.
+# L'écriture est idempotente (voir Importer::Writer) : rejouer l'import sur le même fichier ne modifie
+# aucune ligne.
 #
 # accepted - Array des Importer::Customers::Prepare::Accepted à écrire.
 # source   - nom du fichier d'origine, pour le rapport.
@@ -17,16 +17,10 @@ class Importer::Customers::Upsert
   end
 
   def call
-    attributes = attributes_of(without_duplicates)
-    existing   = existing_attributes(attributes)
+    writer = Importer::Writer.new(model: Customer, key: [KEY], columns: Importer::Customers::ATTRIBUTES)
+    tally  = writer.call(without_duplicates.map { |accepted| accepted.attributes })
 
-    to_create = attributes.reject { |customer| existing.key?(customer[KEY]) }
-    to_update = attributes.select { |customer| existing.key?(customer[KEY]) && existing[customer[KEY]] != customer }
-
-    write(to_create + to_update)
-
-    @report.record_tally(@source, accepted: attributes.size, created: to_create.size, updated: to_update.size,
-                         unchanged: attributes.size - to_create.size - to_update.size)
+    @report.record_tally(@source, :customers, tally)
   end
 
   private
@@ -55,42 +49,6 @@ class Importer::Customers::Upsert
                   cells: accepted.record.cells)
     end
   end
-
-  # Attributs à écrire, tous complétés des colonnes que leur ligne ne renseigne pas.
-  def attributes_of(accepted)
-    accepted.map do |candidate|
-      customer_attributes.to_h { |column| [column, candidate.attributes[column]] }
-    end
-  end
-
-  # Clients déjà en base parmi ceux à écrire, sous la même forme, pour être comparés attribut par attribut.
-  def existing_attributes(attributes)
-    return {} if attributes.empty?
-
-    references = attributes.map { |customer| customer[KEY] }
-
-    Customer.where(KEY => references)
-      .pluck(*customer_attributes)
-      .map { |values| customer_attributes.zip(values).to_h }
-      .index_by { |customer| customer[KEY] }
-  end
-
-  # upsert_all écrit toutes les lignes dans une seule requête : les valeurs sont écrites dans le SQL,
-  # sans paramètres liés. Un fichier bien plus gros demanderait de découper l'écriture (each_slice).
-  def write(attributes)
-    return if attributes.empty?
-
-    Customer.upsert_all(
-      attributes.sort_by { |customer| customer[KEY] },
-      unique_by: KEY,
-      record_timestamps: true
-    )
-  end
-
-  def customer_attributes
-    Importer::Customers::ATTRIBUTES
-  end
-
 
   def entity(accepted)
     "Client #{accepted.attributes[KEY]}"
