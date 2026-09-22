@@ -42,8 +42,13 @@ ActiveRecord::Schema.define do
     t.string  :reference, null: false
     t.string  :name, null: false
     t.string  :vintage
-    t.string  :color
-    t.integer :volume_ml
+    t.string  :color                        # voir Product::WINE_COLORS
+    t.string  :appellation                  # voir Product::APPELLATIONS
+    t.string  :product_type                 # voir Product::PRODUCT_TYPES
+    t.string  :container_label              # contenant tel qu'écrit dans le logiciel d'origine
+    t.string  :container_type               # voir Product::CONTAINER_TYPES
+    t.integer :units_per_container          # nombre d'unités dans le contenant
+    t.integer :volume_ml                    # volume d'une unité
     t.decimal :vat_rate, precision: 5, scale: 2
     t.integer :stock
     t.timestamps

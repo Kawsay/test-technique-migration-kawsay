@@ -152,4 +152,123 @@ module Importer::Parsers
 
     Failure(:flag_invalid)
   end
+
+  # Montant en euros (ex. "13,32", "  19,31 EUR", "13"), en BigDecimal : un montant n'est jamais un Float.
+  #
+  # Virgule ou point décimal ; un suffixe "EUR" ou "€" est retiré. Tout autre caractère (signe, exposant,
+  # séparateur de milliers) rend le montant illisible plutôt que de risquer une lecture fausse.
+  def self.money(raw)
+    return Success(Parsed.new(value: nil)) if raw.nil?
+    return Success(Parsed.new(value: BigDecimal(raw))) if raw.is_a?(Integer)
+    return Failure(:amount_invalid) unless raw.is_a?(String)
+
+    text = raw.strip.delete_suffix("EUR").delete_suffix("€").strip.tr(",", ".")
+    return Success(Parsed.new(value: nil)) if text.empty?
+    return Failure(:amount_invalid) unless decimal_number?(text)
+
+    Success(Parsed.new(value: BigDecimal(text)))
+  end
+
+  # Taux de TVA applicables en France.
+  FRENCH_VAT_RATES = [BigDecimal("20"), BigDecimal("10"), BigDecimal("5.5"), BigDecimal("2.1")].freeze
+
+  # Taux de TVA en pourcentage (ex. "20", "20%", "5,50"), parmi les taux applicables en France.
+  def self.vat_rate(raw)
+    return Success(Parsed.new(value: nil)) if raw.nil?
+
+    text = raw.to_s.strip.delete_suffix("%").strip.tr(",", ".")
+    return Success(Parsed.new(value: nil)) if text.empty?
+    return Failure(:vat_rate_invalid) unless decimal_number?(text)
+
+    rate = BigDecimal(text)
+    return Failure(:vat_rate_unknown) unless FRENCH_VAT_RATES.include?(rate)
+
+    Success(Parsed.new(value: rate))
+  end
+
+  # Nombre entier (ex. un stock), éventuellement négatif.
+  def self.integer(raw)
+    return Success(Parsed.new(value: nil)) if raw.nil?
+    return Success(Parsed.new(value: raw)) if raw.is_a?(Integer)
+    return Failure(:integer_invalid) unless raw.is_a?(String)
+
+    text = raw.strip
+    return Success(Parsed.new(value: nil)) if text.empty?
+    return Failure(:integer_invalid) unless text.delete_prefix("-").delete("0-9").empty? && text != "-"
+
+    Success(Parsed.new(value: Integer(text, 10)))
+  end
+
+  # Terme d'un vocabulaire (ex. une couleur), sans tenir compte de la casse ni des espaces.
+  #
+  # terms   - Hash { terme du logiciel d'origine, en minuscules => valeur Baqio } (ex. { "rouge" => "red" }).
+  # failure - code renvoyé pour un terme inconnu (ex. :color_unknown).
+  def self.term(raw, terms:, failure:)
+    key = raw.to_s.strip.downcase
+    return Success(Parsed.new(value: nil)) if key.empty?
+    return Failure(failure) unless terms.key?(key)
+
+    Success(Parsed.new(value: terms[key]))
+  end
+
+  # Millésime écrit en fin de désignation (ex. "Coteaux Nord 2019" => "2019").
+  # Une désignation sans millésime ("Cuvée Marie", "Haut Montcalm N.M.") n'en a pas : nil.
+  def self.vintage(name)
+    last_word = name.to_s.split.last.to_s
+    return Success(Parsed.new(value: nil)) unless last_word.length == 4 && last_word.delete("0-9").empty?
+
+    Success(Parsed.new(value: last_word))
+  end
+
+  # Contenant d'un produit, sous l'une des trois formes suivantes :
+  #   "<libellé> - <volume>"  ex. "Bouteille - 75.0" : une unité de 75 cl ;
+  #   "<unités> x <volume>"   ex. "6 x 75"          : un carton de 6 unités de 75 cl, signalé ;
+  #   "<libellé> <unités>"    ex. "Carton 6"        : un carton de 6 unités de volume inconnu, signalé.
+  #
+  # types          - Hash { libellé du logiciel d'origine => type Baqio } (ex. { "Bouteille" => "bottle" }).
+  # case_type      - type Baqio d'un contenant de plusieurs unités (ex. "case").
+  # volume_unit_ml - nombre de millilitres de l'unité de volume du logiciel (10 pour des centilitres).
+  #
+  # Renvoie Parsed(value: { type:, units:, volume_ml: }). volume_ml est le volume d'une unité.
+  def self.container(raw, types:, case_type:, volume_unit_ml:)
+    text = raw.to_s.strip
+    return Success(Parsed.new(value: nil)) if text.empty?
+
+    label, volume = text.split(" - ", 2)
+    if volume && types.key?(label) && decimal_number?(volume)
+      return Success(Parsed.new(value: { type: types[label], units: 1, volume_ml: milliliters(volume, volume_unit_ml) }))
+    end
+
+    units, volume = text.split(" x ", 2)
+    if volume && positive_integer?(units) && decimal_number?(volume)
+      value = { type: case_type, units: Integer(units, 10), volume_ml: milliliters(volume, volume_unit_ml) }
+      return Success(Parsed.new(value: value, notice: :container_read_as_case))
+    end
+
+    label, units = text.split(" ", 2)
+    if units && types.key?(label) && positive_integer?(units)
+      value = { type: types[label], units: Integer(units, 10), volume_ml: nil }
+      return Success(Parsed.new(value: value, notice: :container_volume_missing))
+    end
+
+    Failure(:container_invalid)
+  end
+
+  # Nombre décimal positif, sans signe ni exposant : "13", "13.32" (pas ".5", "5.", "1e3" ni "1_000").
+  def self.decimal_number?(text)
+    return false if text.empty? || text.start_with?(".") || text.end_with?(".")
+
+    text.delete("0-9.").empty? && text.count(".") <= 1
+  end
+  private_class_method :decimal_number?
+
+  def self.positive_integer?(text)
+    !text.empty? && text.delete("0-9").empty? && Integer(text, 10).positive?
+  end
+  private_class_method :positive_integer?
+
+  def self.milliliters(volume, volume_unit_ml)
+    (BigDecimal(volume) * volume_unit_ml).round.to_i
+  end
+  private_class_method :milliliters
 end

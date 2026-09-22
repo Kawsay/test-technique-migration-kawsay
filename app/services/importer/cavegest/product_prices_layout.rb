@@ -1,7 +1,4 @@
-# Disposition de l'export des tarifs de CaveGest 4.2 : un produit par ligne, avec un prix par grille tarifaire,
-# regroupés en sections (« --- AOP ROUGES --- ») suivies d'un sous-total.
 class Importer::Cavegest::ProductPricesLayout < Importer::Layout::Base
-  # Position de la colonne (à partir de 0), champ, en-tête attendu.
   COLUMNS = [
     [0,  :reference,   "Ref"],
     [1,  :name,        "Désignation"],
@@ -16,17 +13,55 @@ class Importer::Cavegest::ProductPricesLayout < Importer::Layout::Base
     [10, :stock,       "Stock"]
   ].freeze
 
-  # Encodage et séparateur de l'export.
   FALLBACK_ENCODING = "Windows-1252".freeze
   COL_SEP           = ";".freeze
 
-  # L'export commence par un commentaire (« … ATTENTION : la grille EXPO est saisie en TTC »)
-  # et une ligne vide, avant l'en-tête.
   PREAMBLE_SIZE = 2
 
-  # « --- AOP ROUGES --- » ouvre une section ; « SOUS-TOTAL AOP ROUGES;…;14 » la ferme.
   SECTION_MARK    = "---".freeze
   SUBTOTAL_PREFIX = "SOUS-TOTAL".freeze
+
+  EMPTY_MARKERS = [].freeze # aucun marqueur de valeur absente dans cet export
+
+  PRICE_GRIDS = {
+    "DEPC"  => :price_depc,
+    "CHR"   => :price_chr,
+    "EXPO"  => :price_expo,
+    "PART"  => :price_part,
+    "SALON" => :price_salon
+  }.freeze
+
+  # Grilles saisies toutes taxes comprises, d'après le préambule de l'export
+  TTC_GRIDS = ["EXPO"].freeze
+
+  # Grilles dont les prix HT sont égaux dans l'export : EXPO converti en HT = DEPC au centime près.
+  # Sert à repérer une erreur de saisie (HAU214 a un DEPC à 34,35 € alors
+  # qu'EXPO converti donne 7,37 €)
+  EQUAL_PRICE_GRIDS = [["EXPO", "DEPC"]].freeze
+
+  COLORS = { "rouge" => "red", "blanc" => "white", "rosé" => "rose" }.freeze
+
+  CONTAINER_TYPES = {
+    "Bouteille"   => "bottle",
+    "½ Bouteille" => "bottle",
+    "Magnum"      => "bottle",
+    "Litre"       => "bottle",
+    "BIB"         => "bib",
+    "Carton"      => "case"
+  }.freeze
+  CASE_CONTAINER_TYPE     = "case".freeze
+  CONTAINER_VOLUME_UNIT_ML = 10
+
+  # Sections de l'export => niveau d'appellation et type de produit Baqio
+  # (voir Product::APPELLATIONS et Product::PRODUCT_TYPES).
+  SECTIONS = {
+    "AOP ROUGES"    => { appellation: "aop",           product_type: "still_wine" },
+    "AOP BLANCS"    => { appellation: "aop",           product_type: "still_wine" },
+    "IGP"           => { appellation: "igp",           product_type: "still_wine" },
+    "VIN DE FRANCE" => { appellation: "vin_de_france", product_type: "still_wine" },
+    "EFFERVESCENTS" => { appellation: nil,             product_type: "sparkling_wine" },
+    "DIVERS"        => { appellation: nil,             product_type: "other" }
+  }.freeze
 
   # rows - Array des Importer::Adapter::Row du fichier, préambule compris.
   def initialize(rows)

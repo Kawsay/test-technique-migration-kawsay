@@ -58,7 +58,7 @@ I18n.available_locales = %i(en fr)
 end
 
 # TODO: consider Zeitwerk
-%w(importer.rb importer/normalization.rb importer/base.rb importer/layout.rb importer/layout/base.rb).each do |file|
+%w(importer.rb importer/normalization.rb importer/base.rb importer/layout.rb importer/layout/base.rb importer/reader.rb).each do |file|
   require File.join(APP_ROOT, "app", "services", file)
 end
 

@@ -240,4 +240,142 @@ RSpec.describe Importer::Parsers do
       end
     end
   end
+
+  describe ".money" do
+    { "13"           => BigDecimal("13"),
+      "13,32"        => BigDecimal("13.32"),
+      "13.32"        => BigDecimal("13.32"),
+      "  19,31 EUR"  => BigDecimal("19.31"),
+      "10 €"         => BigDecimal("10"),
+      "0,00"         => BigDecimal("0"),
+      13             => BigDecimal("13") }.each do |raw, amount|
+      it "reads #{raw.inspect}" do
+        expect(described_class.money(raw)).to eq(Success(described_class::Parsed.new(value: amount)))
+      end
+    end
+
+    it "returns a BigDecimal, never a Float" do
+      expect(described_class.money("13,32").value!.value).to be_a(BigDecimal)
+    end
+
+    [nil, "", "  "].each do |raw|
+      it "reads #{raw.inspect} as an empty value, not as zero" do
+        expect(described_class.money(raw)).to eq(Success(described_class::Parsed.new(value: nil)))
+      end
+    end
+
+    ["-5", "1_000", "1e3", "1.000,50", ".5", "5.", "treize", 13.5].each do |raw|
+      it "fails on #{raw.inspect}" do
+        expect(described_class.money(raw)).to eq(Failure(:amount_invalid))
+      end
+    end
+  end
+
+  describe ".vat_rate" do
+    { "20" => BigDecimal("20"), "20%" => BigDecimal("20"), "20 %" => BigDecimal("20"),
+      "5,50" => BigDecimal("5.5"), "5.5" => BigDecimal("5.5"), "10" => BigDecimal("10"), "2,1" => BigDecimal("2.1") }.each do |raw, rate|
+      it "reads #{raw.inspect}" do
+        expect(described_class.vat_rate(raw)).to eq(Success(described_class::Parsed.new(value: rate)))
+      end
+    end
+
+    it "reads an empty cell as an empty value" do
+      expect(described_class.vat_rate(nil)).to eq(Success(described_class::Parsed.new(value: nil)))
+    end
+
+    it "fails on an unreadable rate" do
+      expect(described_class.vat_rate("vingt")).to eq(Failure(:vat_rate_invalid))
+    end
+
+    it "fails on a rate that does not exist in France" do
+      expect(described_class.vat_rate("19,6")).to eq(Failure(:vat_rate_unknown))
+    end
+  end
+
+  describe ".integer" do
+    { "28" => 28, " 28 " => 28, "-3" => -3, 28 => 28 }.each do |raw, number|
+      it "reads #{raw.inspect}" do
+        expect(described_class.integer(raw)).to eq(Success(described_class::Parsed.new(value: number)))
+      end
+    end
+
+    it "reads an empty cell as an empty value" do
+      expect(described_class.integer("")).to eq(Success(described_class::Parsed.new(value: nil)))
+    end
+
+    ["2,5", "-", "douze", 2.5].each do |raw|
+      it "fails on #{raw.inspect}" do
+        expect(described_class.integer(raw)).to eq(Failure(:integer_invalid))
+      end
+    end
+  end
+
+  describe ".term" do
+    def color(raw) = described_class.term(raw, terms: { "rouge" => "red", "rosé" => "rose" }, failure: :color_unknown)
+
+    ["rouge", "Rouge", "ROUGE", " rouge "].each do |raw|
+      it "reads #{raw.inspect}, whatever its case" do
+        expect(color(raw)).to eq(Success(described_class::Parsed.new(value: "red")))
+      end
+    end
+
+    it "reads an accented term" do
+      expect(color("Rosé")).to eq(Success(described_class::Parsed.new(value: "rose")))
+    end
+
+    it "reads an empty cell as an empty value" do
+      expect(color(nil)).to eq(Success(described_class::Parsed.new(value: nil)))
+    end
+
+    it "fails with the given code on an unknown term" do
+      expect(color("vert")).to eq(Failure(:color_unknown))
+    end
+  end
+
+  describe ".vintage" do
+    { "Coteaux Nord 2019" => "2019", "Haut Montcalm N.M." => nil, "Cuvée Marie" => nil, "Cuvée 12345" => nil, nil => nil }
+      .each do |name, vintage|
+        it "reads #{vintage.inspect} in #{name.inspect}" do
+          expect(described_class.vintage(name)).to eq(Success(described_class::Parsed.new(value: vintage)))
+        end
+      end
+  end
+
+  describe ".container" do
+    def container(raw)
+      described_class.container(raw, types: { "Bouteille" => "bottle", "½ Bouteille" => "bottle", "Carton" => "case" },
+                                     case_type: "case", volume_unit_ml: 10)
+    end
+
+    it "reads a single unit and its volume" do
+      expect(container("Bouteille - 75.0"))
+        .to eq(Success(described_class::Parsed.new(value: { type: "bottle", units: 1, volume_ml: 750 })))
+    end
+
+    it "reads a half volume" do
+      expect(container("½ Bouteille - 37.5"))
+        .to eq(Success(described_class::Parsed.new(value: { type: "bottle", units: 1, volume_ml: 375 })))
+    end
+
+    it "reads a number of units and their volume as a case, with a notice" do
+      expect(container("6 x 75"))
+        .to eq(Success(described_class::Parsed.new(value: { type: "case", units: 6, volume_ml: 750 }, notice: :container_read_as_case)))
+    end
+
+    # Le nombre d'unités est écrit, pas leur volume : on garde ce qui est connu, et on signale le reste.
+    it "reads a case without the volume of its units, with a notice" do
+      expect(container("Carton 6"))
+        .to eq(Success(described_class::Parsed.new(value: { type: "case", units: 6, volume_ml: nil }, notice: :container_volume_missing)))
+    end
+
+    it "reads an empty cell as an empty value" do
+      expect(container(nil)).to eq(Success(described_class::Parsed.new(value: nil)))
+    end
+
+    ["Jéroboam - 300.0", "Bouteille - soixante-quinze", "0 x 75", "Carton", "6 x", "Fût"].each do |raw|
+      it "fails on #{raw.inspect}" do
+        expect(container(raw)).to eq(Failure(:container_invalid))
+      end
+    end
+  end
 end
