@@ -1,5 +1,7 @@
 ENV["APP_ENV"] = "test"
 
+require "tmpdir"
+
 require_relative "../config/environment"
 
 ActiveRecord::Migration.verbose = false

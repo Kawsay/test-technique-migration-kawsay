@@ -1,6 +1,6 @@
 class Importer::Summary
   # Type d'enregistrement écrit => libellé du bilan.
-  ENTITIES = { customers: "clients" }.freeze
+  ENTITIES = { customers: "clients", products: "produits", product_prices: "tarifs" }.freeze
 
   def initialize(report)
     @report = report

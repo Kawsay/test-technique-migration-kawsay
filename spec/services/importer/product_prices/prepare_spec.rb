@@ -51,6 +51,10 @@ RSpec.describe Importer::ProductPrices::Prepare do
       expect(accepted_with(name: "Cuvée Marie N.M.").product).to include(name: "Cuvée Marie N.M.", vintage: nil)
     end
 
+    it "returns every attribute written in the database" do
+      expect(accepted_with.product.keys).to match_array(Importer::ProductPrices::PRODUCT_ATTRIBUTES)
+    end
+
     it "does not write anything in the database" do
       expect { import([product_row]) }.not_to change(Product, :count)
     end
@@ -113,6 +117,11 @@ RSpec.describe Importer::ProductPrices::Prepare do
 
       expect(price(accepted, "SALON")).to be_nil
       expect(issue(:price_grid_empty)).to have_attributes(level: :info, field: :price_salon)
+    end
+
+    # Un tarif en base sur l'une de ces grilles sera retiré ; une grille illisible n'en fait pas partie.
+    it "lists the empty grids, but not the unreadable ones" do
+      expect(accepted_with(price_salon: nil, price_part: "quinze").empty_grids).to eq(["SALON"])
     end
 
     it "rejects an unreadable price, but keeps the product and its other prices" do

@@ -1,5 +1,5 @@
 class Importer::ProductPrices::Prepare
-  Accepted = Data.define(:record, :product, :prices)
+  Accepted = Data.define(:record, :product, :prices, :empty_grids)
 
   PRICE_TOLERANCE = BigDecimal("0.01")
 
@@ -44,7 +44,7 @@ class Importer::ProductPrices::Prepare
     prices = prices_of(reader, product[:vat_rate])
 
     reader.notices.each { |notice| report_notice(record, notice) }
-    Accepted.new(record: record, product: product, prices: prices)
+    Accepted.new(record: record, product: product, prices: prices, empty_grids: empty_grids(reader))
   end
 
   def product_attributes(reader, section)
@@ -98,6 +98,11 @@ class Importer::ProductPrices::Prepare
     check_equal_grids(reader, amounts)
 
     amounts.map { |grid_code, amount| { grid_code: grid_code, amount_ht: amount } }
+  end
+
+  # Grilles vides dans le fichier : un tarif en base sur l'une d'elles est retiré (voir Upsert).
+  def empty_grids(reader)
+    @layout_class::PRICE_GRIDS.filter_map { |grid_code, field| grid_code if reader.empty_cell?(field) }
   end
 
   # Prix TTC => HT, avec le taux de TVA du produit, arrondi au centime.
