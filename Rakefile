@@ -5,6 +5,9 @@ Dir[File.join(APP_ROOT, "lib", "tasks", "**", "*.rake")].sort.each { |f| load f 
 namespace :db do
   desc "Crée (ou recrée) la base à partir de db/schema.rb"
   task :setup do
+    puts Importer::Console.title("Création de la base")
+
+    ActiveRecord::Migration.verbose = false
     config = ActiveRecord::Base.connection_db_config
     name   = config.database
 

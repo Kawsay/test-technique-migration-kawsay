@@ -5,6 +5,9 @@ class Importer::Summary
   # Type d'enregistrement écrit => libellé du bilan.
   ENTITIES = { customers: "clients", products: "produits", product_prices: "tarifs" }.freeze
 
+  # Couleur de chaque niveau : ce qui appelle une action se voit en premier.
+  LEVEL_STYLES = { rejected: :red, repaired: :green, suspect: :yellow, info: :dim }.freeze
+
   def initialize(report)
     @report = report
   end
@@ -15,9 +18,20 @@ class Importer::Summary
 
   private
 
+  def console
+    Importer::Console
+  end
+
+  # Un bloc par fichier : ce qui est entré en base, par type d'enregistrement.
   def bilans
-    @report.bilans.map do |(source, entity), bilan|
-      "#{source}, #{ENTITIES.fetch(entity)} : #{bilan.created} créés, #{bilan.updated} mis à jour, #{bilan.unchanged} inchangés"
+    @report.bilans.group_by { |(source, _entity), _bilan| source }.flat_map do |source, bilans|
+      lines = bilans.map do |(_source, entity), bilan|
+        counts = "#{console.paint(bilan.created, :bold)} créés, #{bilan.updated} mis à jour, #{bilan.unchanged} inchangés"
+
+        "  #{ENTITIES.fetch(entity).ljust(9)} #{counts}"
+      end
+
+      [console.paint(source, :bold), *lines]
     end
   end
 
@@ -27,7 +41,9 @@ class Importer::Summary
       issues = @report.by_level(level)
       next [] if issues.empty?
 
-      ["", "#{MigrationReport::LEVEL_LABELS.fetch(level)} (#{issues.size}) :", *counts_by_code(issues)]
+      heading = "#{MigrationReport::LEVEL_LABELS.fetch(level)} (#{issues.size})"
+
+      ["", console.paint(heading, LEVEL_STYLES.fetch(level), :bold), *counts_by_code(issues)]
     end
   end
 

@@ -122,14 +122,14 @@ RSpec.describe Importer::Audit do
       price(product("REF1"), "DEPC", "10.00")
       customer("C1", price_grid_code: "DEPC")
 
-      expect(described_class.new.to_s).to start_with("Contrôles après reprise — 1 clients, 1 produits, 1 tarifs en base")
-      expect(described_class.new.to_s).to include("OK     Chaque produit a au moins un tarif")
+      expect(described_class.new.to_s).to start_with("1 clients, 1 produits, 1 tarifs en base")
+      expect(described_class.new.to_s).to include("OK    Chaque produit a au moins un tarif")
     end
 
     it "names the records in error" do
       product("REF1")
 
-      expect(described_class.new.to_s).to include("ÉCART  Chaque produit a au moins un tarif : 1 (REF1)")
+      expect(described_class.new.to_s).to include("ÉCART Chaque produit a au moins un tarif : 1 (REF1)")
     end
   end
 end

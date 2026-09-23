@@ -42,12 +42,18 @@ class Importer::Audit
 
   def to_s
     counts = "#{Customer.count} clients, #{Product.count} produits, #{ProductPrice.count} tarifs en base"
-    lines  = call.map { |finding| format("%-6s %s", finding.ok? ? "OK" : "ÉCART", detail(finding)) }
+    lines  = call.map { |finding| "#{status(finding)} #{detail(finding)}" }
 
-    ["Contrôles après reprise — #{counts}", *lines].join("\n")
+    [counts, *lines].join("\n")
   end
 
   private
+
+  def status(finding)
+    return Importer::Console.paint("OK   ", :green) if finding.ok?
+
+    Importer::Console.paint("ÉCART", :red, :bold)
+  end
 
   def detail(finding)
     return finding.label if finding.ok?
