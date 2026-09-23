@@ -63,6 +63,7 @@ class Importer::ProductPrices::Upsert
       @report.add(level: :rejected, code: code, source: @source, line: accepted.record.line,
                   entity: entity(accepted), field: KEY, raw: accepted.product[KEY], value: lines.join(", "),
                   cells: accepted.record.cells)
+      @report.discard_line(@source, accepted.record.line)
     end
   end
 

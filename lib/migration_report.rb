@@ -58,6 +58,7 @@ class MigrationReport
 
   def initialize
     @issues    = []
+    @discarded = []
     @bilans    = {}
     @declared  = {}
   end
@@ -77,6 +78,13 @@ class MigrationReport
     write_once(@bilans, [source, entity], bilan)
   end
 
+  # Ligne finalement non reprise, alors que ses anomalies ont déjà été journalisées : c'est le cas d'un
+  # doublon, qui n'est connu qu'à l'écriture, une fois toutes les lignes lues. Ses autres anomalies
+  # deviennent sans objet pour le client (voir #issues_for_client).
+  def discard_line(source, line)
+    @discarded << [source, line]
+  end
+
   def record_declared(source, **totals)
     write_once(@declared, source, totals.freeze)
   end
@@ -93,8 +101,18 @@ class MigrationReport
     @declared.dup.freeze
   end
 
+  # Anomalies telles qu'elles sont présentées au client : une ligne non reprise n'y porte que les raisons
+  # de son rejet. Une valeur corrigée ou douteuse sur une ligne absente de la base n'appelle aucune action.
+  #
+  # Le journal complet (#issues) les conserve : il enregistre tout ce qui s'est passé pendant la reprise.
+  def issues_for_client
+    discarded = @discarded.uniq
+
+    issues.reject { |issue| issue.level != :rejected && discarded.include?([issue.source, issue.line]) }
+  end
+
   def by_level(level)
-    issues.select { |issue| issue.level == level }
+    issues_for_client.select { |issue| issue.level == level }
   end
 
   private

@@ -109,6 +109,15 @@ RSpec.describe Importer::ProductPrices::Upsert do
         .to eq([[:rejected, 2, "2, 3"], [:rejected, 3, "2, 3"]])
     end
 
+    # Les corrections signalées sur une ligne non reprise n'appellent aucune action du client.
+    it "drops the other anomalies of the rejected rows" do
+      report.add(level: :repaired, code: :price_ttc_converted, source: source, line: 2, entity: "Produit REF1")
+      upsert([accepted(2, prices: { "DEPC" => "10.00" }), accepted(3, prices: { "DEPC" => "12.00" })])
+
+      expect(report.issues_for_client.map { |candidate| candidate.code }).to eq([:duplicate_conflict, :duplicate_conflict])
+      expect(report.issues.map { |candidate| candidate.code }).to include(:price_ttc_converted)
+    end
+
     it "distinguishes rows whose prices differ" do
       upsert([accepted(2, prices: { "DEPC" => "10.00" }), accepted(3, prices: { "DEPC" => "12.00" })])
 

@@ -116,4 +116,51 @@ RSpec.describe MigrationReport do
       expect { report.record_bilan(source, :products, bilan) }.to raise_error(ArgumentError, /déjà enregistré/)
     end
   end
+
+  describe "#issues_for_client" do
+    # Un doublon n'est connu qu'à l'écriture : les anomalies de sa ligne ont déjà été journalisées.
+    it "keeps only the rejection of a line that was not imported" do
+      report.add(level: :repaired, code: :zip_padded, source:, line: 12)
+      report.add(level: :rejected, code: :duplicate_conflict, source:, line: 12)
+      report.discard_line(source, 12)
+
+      expect(report.issues_for_client.map { |issue| issue.code }).to eq([:duplicate_conflict])
+    end
+
+    it "keeps the whole journal" do
+      report.add(level: :repaired, code: :zip_padded, source:, line: 12)
+      report.discard_line(source, 12)
+
+      expect(report.issues.map { |issue| issue.code }).to eq([:zip_padded])
+    end
+
+    it "keeps the anomalies of the other lines" do
+      report.add(level: :repaired, code: :zip_padded, source:, line: 13)
+      report.discard_line(source, 12)
+
+      expect(report.issues_for_client.map { |issue| issue.line }).to eq([13])
+    end
+
+    it "keeps the anomalies of the same line in another file" do
+      report.add(level: :repaired, code: :zip_padded, source: "tarifs.csv", line: 12)
+      report.discard_line(source, 12)
+
+      expect(report.issues_for_client.map { |issue| issue.source }).to eq(["tarifs.csv"])
+    end
+
+    # Un tarif rejeté ne rejette pas sa ligne : le produit, lui, est en base.
+    it "keeps the anomalies of a line that was imported despite a rejection" do
+      report.add(level: :rejected, code: :amount_invalid, source:, line: 12)
+      report.add(level: :repaired, code: :price_ttc_converted, source:, line: 12)
+
+      expect(report.issues_for_client.map { |issue| issue.code }).to eq([:amount_invalid, :price_ttc_converted])
+    end
+
+    it "counts by level what the client is shown" do
+      report.add(level: :repaired, code: :zip_padded, source:, line: 12)
+      report.discard_line(source, 12)
+
+      expect(report.by_level(:repaired)).to be_empty
+    end
+  end
 end
