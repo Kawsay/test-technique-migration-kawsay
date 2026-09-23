@@ -50,12 +50,16 @@ class Importer::ProductPrices::Prepare
   def product_attributes(reader, section)
     name      = reader.text(:name)
     container = reader.container(:container) || {}
+    color     = reader.color(:color)
+
+    report_missing_values(reader)
+    check_section_color(reader, color, section)
 
     {
       reference:           reader.text(:reference),
       name:                name,
       vintage:             Importer::Parsers.vintage(name).value!.value,
-      color:               reader.color(:color),
+      color:               color,
       container_label:     reader.text(:container_label),
       container_type:      container[:type],
       units_per_container: container[:units],
@@ -63,6 +67,22 @@ class Importer::ProductPrices::Prepare
       vat_rate:            reader.vat_rate(:vat_rate),
       stock:               reader.integer(:stock)
     }.merge(classification(reader, section))
+  end
+
+  # Deux valeurs absentes qui ont un effet métier : sans contenant, le volume vendu est inconnu ;
+  # sans couleur, le catalogue est incomplet. Les autres cellules vides restent des valeurs absentes.
+  def report_missing_values(reader)
+    reader.note(:container_missing, field: :container_label, value: nil) if reader.empty_cell?(:container_label)
+    reader.note(:color_missing, field: :color, value: nil) if reader.empty_cell?(:color)
+  end
+
+  # Le nom de certaines sections annonce une couleur (« AOP ROUGES ») : seul le client peut dire laquelle
+  # des deux valeurs est la bonne, les deux sont donc reprises et le désaccord est signalé.
+  def check_section_color(reader, color, section)
+    expected = @layout_class::SECTION_COLORS[section]
+    return if expected.nil? || color.nil? || color == expected
+
+    reader.note(:color_inconsistent_with_section, field: :color, value: color)
   end
 
   # Niveau d'appellation et type de produit, d'après la section de l'export où figure le produit.

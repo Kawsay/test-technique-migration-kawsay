@@ -10,7 +10,9 @@ class Importer::ProductPrices::Reader < Importer::Reader
     container_read_as_case:   :repaired,
 
     # Valeurs reprises mais douteuses, ou vidées car illisibles : le client vérifie.
-    price_grids_inconsistent: :suspect,
+    price_grids_inconsistent:        :suspect,
+    container_missing:               :suspect,
+    color_inconsistent_with_section: :suspect,
     container_volume_missing: :suspect,
     container_invalid:        :suspect,
     color_unknown:            :suspect,
@@ -19,7 +21,8 @@ class Importer::ProductPrices::Reader < Importer::Reader
     vat_rate_unknown:         :suspect,
     integer_invalid:          :suspect,
 
-    # Transformations attendues, sans action du client.
+    # Transformations attendues, ou valeur absente sans effet sur la vente : rien à faire.
+    color_missing:            :info,
     price_grid_empty:         :info
   }.freeze
 

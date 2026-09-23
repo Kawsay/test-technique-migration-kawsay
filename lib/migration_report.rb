@@ -43,6 +43,9 @@ class MigrationReport
 
     # Produits et tarifs
     color_unknown:               "Couleur inconnue, non reprise",
+    color_missing:               "Couleur absente",
+    color_inconsistent_with_section: "Couleur en désaccord avec la section du catalogue",
+    container_missing:           "Contenant absent : volume et conditionnement inconnus",
     section_unknown:             "Section inconnue : appellation et type de produit non repris",
     container_invalid:           "Contenant illisible, conservé tel quel",
     container_volume_missing:    "Contenant sans volume, conservé tel quel",

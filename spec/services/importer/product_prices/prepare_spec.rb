@@ -82,6 +82,17 @@ RSpec.describe Importer::ProductPrices::Prepare do
       end
     end
 
+    # Sans contenant, on ne connaît ni le volume vendu ni le conditionnement : le client doit compléter.
+    it "reports a product without any container" do
+      expect(accepted_with(container: nil).product).to include(container_label: nil, container_type: nil)
+      expect(issue(:container_missing)).to have_attributes(level: :suspect, field: :container_label)
+    end
+
+    it "reports a product without any color" do
+      expect(accepted_with(color: nil).product).to include(color: nil)
+      expect(issue(:color_missing)).to have_attributes(level: :info, field: :color)
+    end
+
     it "empties an unknown color, and reports it" do
       expect(accepted_with(color: "Vert").product).to include(color: nil)
       expect(issue(:color_unknown)).to have_attributes(level: :suspect, field: :color, raw: "Vert")
@@ -94,6 +105,25 @@ RSpec.describe Importer::ProductPrices::Prepare do
 
       it "reads a section without appellation" do
         expect(accepted_with(section: "EFFERVESCENTS").product).to include(appellation: nil, product_type: "sparkling_wine")
+      end
+
+      # Le nom de la section annonce une couleur : les deux valeurs sont reprises, le désaccord est signalé.
+      it "reports a color that contradicts its section" do
+        expect(accepted_with(section: "AOP ROUGES", color: "Blanc").product).to include(color: "white")
+        expect(issue(:color_inconsistent_with_section))
+          .to have_attributes(level: :suspect, field: :color, raw: "Blanc", value: "white")
+      end
+
+      it "accepts a color its section announces" do
+        accepted_with(section: "AOP ROUGES", color: "Rouge")
+
+        expect(issue(:color_inconsistent_with_section)).to be_nil
+      end
+
+      it "checks no color in a section that announces none" do
+        accepted_with(section: "IGP", color: "Blanc")
+
+        expect(issue(:color_inconsistent_with_section)).to be_nil
       end
 
       it "reports an unknown section" do
@@ -222,11 +252,14 @@ RSpec.describe Importer::ProductPrices::Prepare do
       counts = @report.issues.group_by { |candidate| [candidate.level, candidate.code] }.transform_values(&:size)
 
       expect(counts).to eq(
-        [:repaired, :price_ttc_converted]      => 113,
-        [:repaired, :container_read_as_case]   => 1,
-        [:suspect,  :container_volume_missing] => 1,
-        [:suspect,  :price_grids_inconsistent] => 1,
-        [:info,     :price_grid_empty]         => 63
+        [:repaired, :price_ttc_converted]             => 113,
+        [:repaired, :container_read_as_case]          => 1,
+        [:suspect,  :container_volume_missing]        => 1,
+        [:suspect,  :price_grids_inconsistent]        => 1,
+        [:suspect,  :container_missing]               => 13,
+        [:suspect,  :color_inconsistent_with_section] => 16,
+        [:info,     :color_missing]                   => 15,
+        [:info,     :price_grid_empty]                => 63
       )
     end
 

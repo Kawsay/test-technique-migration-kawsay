@@ -53,6 +53,9 @@ class Importer::Cavegest::ProductPricesLayout < Importer::Layout::Base
   CASE_CONTAINER_TYPE     = "case".freeze
   CONTAINER_VOLUME_UNIT_ML = 10
 
+  # Sections dont le nom annonce une couleur : un désaccord avec la colonne « Couleur » est signalé.
+  SECTION_COLORS = { "AOP ROUGES" => "red", "AOP BLANCS" => "white" }.freeze
+
   # Sections de l'export => niveau d'appellation et type de produit Baqio
   # (voir Product::APPELLATIONS et Product::PRODUCT_TYPES).
   SECTIONS = {
