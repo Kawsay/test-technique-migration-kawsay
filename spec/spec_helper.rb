@@ -1,5 +1,8 @@
 ENV["APP_ENV"] = "test"
 
+# La sortie des tests ne dépend pas du terminal où on les lance : jamais de couleurs (voir Importer::Console).
+ENV["NO_COLOR"] = "1"
+
 require "tmpdir"
 
 require_relative "../config/environment"
