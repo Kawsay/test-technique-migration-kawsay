@@ -2,16 +2,21 @@
 #
 # Table name: products
 #
-#  id         :bigint           not null, primary key
-#  color      :string
-#  name       :string           not null
-#  reference  :string           not null
-#  stock      :integer
-#  vat_rate   :decimal(5, 2)
-#  vintage    :string
-#  volume_ml  :integer
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                  :bigint           not null, primary key
+#  appellation         :string
+#  color               :string
+#  container_label     :string
+#  container_type      :string
+#  name                :string           not null
+#  product_type        :string
+#  reference           :string           not null
+#  stock               :integer
+#  units_per_container :integer
+#  vat_rate            :decimal(5, 2)
+#  vintage             :string
+#  volume_ml           :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #
 # Indexes
 #
