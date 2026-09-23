@@ -45,6 +45,13 @@ RSpec.describe Importer::Customers::Prepare do
       expect(attributes_of(kind_label: "CLIENT FRANCE")).to include(customer_category: "CLIENT FRANCE")
     end
 
+    # Le même numéro est saisi avec ou sans espaces : une seule forme entre en base.
+    it "writes a single form of the VAT and excise numbers" do
+      attributes = attributes_of(vat_number: "FR 69 995954011", excise_number: "FR 012345E")
+
+      expect(attributes).to include(vat_number: "FR69995954011", excise_number: "FR012345E")
+    end
+
     it "keeps the file order" do
       accepted = import([customer_row(reference: "C1"), customer_row(reference: "C2")])
 

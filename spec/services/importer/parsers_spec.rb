@@ -391,4 +391,17 @@ RSpec.describe Importer::Parsers do
       expect(described_class.label("  ")).to eq(Success(described_class::Parsed.new(value: nil)))
     end
   end
+
+  describe ".identifier" do
+    # Un même numéro de TVA est saisi avec ou sans espaces : une seule forme doit entrer en base.
+    ["FR 69 995954011", "FR69995954011", "fr-69-995954011"].each do |raw|
+      it "reads #{raw.inspect} as a single identifier" do
+        expect(described_class.identifier(raw)).to eq(Success(described_class::Parsed.new(value: "FR69995954011")))
+      end
+    end
+
+    it "reads an empty cell as an empty value" do
+      expect(described_class.identifier(nil)).to eq(Success(described_class::Parsed.new(value: nil)))
+    end
+  end
 end

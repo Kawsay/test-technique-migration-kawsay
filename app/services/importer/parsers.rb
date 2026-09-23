@@ -38,6 +38,16 @@ module Importer::Parsers
     Success(Parsed.new(value: value))
   end
 
+  # Identifiant administratif saisi librement (numéro de TVA, d'accise) : espaces et ponctuation retirés,
+  # majuscules, pour que « FR 69 995954011 » et « FR69995954011 » soient la même valeur en base.
+  # Sa validité n'est pas contrôlée : seule l'administration peut le dire.
+  def self.identifier(raw)
+    value = raw.to_s.upcase.delete("^A-Z0-9")
+    return Success(Parsed.new(value: nil)) if value.empty?
+
+    Success(Parsed.new(value: value))
+  end
+
   # Excel stocke les codes postaux comme des nombres : le zéro initial des départements 01 à 09 est perdu.
   # Seules les règles française et belge sont connues ; pour un autre pays, la valeur est gardée telle quelle.
   #

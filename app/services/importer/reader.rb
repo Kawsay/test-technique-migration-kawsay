@@ -33,6 +33,10 @@ class Importer::Reader
     read(field, Importer::Parsers.label(cell(field)))
   end
 
+  def identifier(field)
+    read(field, Importer::Parsers.identifier(cell(field)))
+  end
+
   def date(field)
     read(field, Importer::Parsers.date(cell(field), format: @layout_class::DATE_FORMAT))
   end

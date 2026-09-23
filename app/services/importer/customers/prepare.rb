@@ -82,8 +82,8 @@ class Importer::Customers::Prepare
       kind:              kind(reader),
       customer_category: reader.label(:customer_category),
       price_grid_code:   reader.text(:price_grid_code),
-      vat_number:        reader.text(:vat_number),
-      excise_number:     reader.text(:excise_number),
+      vat_number:        reader.identifier(:vat_number),
+      excise_number:     reader.identifier(:excise_number),
       creation_date:     reader.date(:creation_date),
       active:            reader.flag(:active) != true
     }
