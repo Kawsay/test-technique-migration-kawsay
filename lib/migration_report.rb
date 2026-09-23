@@ -28,8 +28,9 @@ class MigrationReport
   # cells  - Hash de la ligne d'origine complète, pour que le client puisse corriger
   #          et réimporter une ligne rejetée. nil pour un événement sans ligne.
   Issue = Data.define(:level, :code, :source, :line, :entity, :field, :raw, :value, :cells) do
+    # Libellé lisible par le client, à défaut le code lui-même : aucun événement ne doit rester muet.
     def message
-      I18n(code, scope: 'migration.codes', locale: LOCALE, default: code.to_s)
+      I18n.t(code, scope: "migration.codes", locale: LOCALE, default: code.to_s)
     end
   end
 
