@@ -80,7 +80,7 @@ class Importer::Customers::Prepare
       phone:             reader.phone(:phone),
       mobile:            reader.phone(:mobile),
       kind:              kind(reader),
-      customer_category: reader.text(:customer_category),
+      customer_category: reader.label(:customer_category),
       price_grid_code:   reader.text(:price_grid_code),
       vat_number:        reader.text(:vat_number),
       excise_number:     reader.text(:excise_number),

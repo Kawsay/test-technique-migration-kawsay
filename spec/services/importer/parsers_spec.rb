@@ -378,4 +378,17 @@ RSpec.describe Importer::Parsers do
       end
     end
   end
+
+  describe ".label" do
+    # Le même code famille arrive avec plusieurs orthographes : « Client France » et « CLIENT FRANCE ».
+    ["Client France", "CLIENT FRANCE", "  client france  "].each do |raw|
+      it "reads #{raw.inspect} as a single label" do
+        expect(described_class.label(raw)).to eq(Success(described_class::Parsed.new(value: "CLIENT FRANCE")))
+      end
+    end
+
+    it "reads an empty cell as an empty value" do
+      expect(described_class.label("  ")).to eq(Success(described_class::Parsed.new(value: nil)))
+    end
+  end
 end

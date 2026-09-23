@@ -29,6 +29,15 @@ module Importer::Parsers
     Success(Parsed.new(value: value))
   end
 
+  # Terme d'un vocabulaire du logiciel d'origine, saisi librement (ex. « Client France », « CLIENT FRANCE ») :
+  # mis en majuscules pour que la même catégorie ne se retrouve pas en base sous plusieurs orthographes.
+  def self.label(raw)
+    value = raw.to_s.strip.upcase
+    return Success(Parsed.new(value: nil)) if value.empty?
+
+    Success(Parsed.new(value: value))
+  end
+
   # Excel stocke les codes postaux comme des nombres : le zéro initial des départements 01 à 09 est perdu.
   # Seules les règles française et belge sont connues ; pour un autre pays, la valeur est gardée telle quelle.
   #

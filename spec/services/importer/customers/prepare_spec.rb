@@ -39,6 +39,12 @@ RSpec.describe Importer::Customers::Prepare do
                                              kind: "customer", country_code: "FR", active: true)
     end
 
+    # Le même code famille arrive sous plusieurs orthographes : « Client France » et « CLIENT FRANCE ».
+    it "writes a single spelling of the customer category" do
+      expect(attributes_of(kind_label: "Client France")).to include(customer_category: "CLIENT FRANCE")
+      expect(attributes_of(kind_label: "CLIENT FRANCE")).to include(customer_category: "CLIENT FRANCE")
+    end
+
     it "keeps the file order" do
       accepted = import([customer_row(reference: "C1"), customer_row(reference: "C2")])
 
