@@ -101,6 +101,25 @@ RSpec.describe Importer::ProductPrices::Upsert do
     end
   end
 
+  describe "possible duplicates" do
+    # Deux références différentes pour le même produit : les deux sont reprises, le client tranche.
+    it "reports products that share their name, container and color" do
+      upsert([accepted(2, reference: "REF1", name: "Vin rouge", container_label: "Bouteille - 75.0", color: "red"),
+              accepted(3, reference: "REF2", name: "Vin rouge", container_label: "Bouteille - 75.0", color: "red")])
+
+      expect(Product.pluck(:reference)).to contain_exactly("REF1", "REF2")
+      expect(issues(:possible_duplicate).map { |candidate| [candidate.level, candidate.line, candidate.raw] })
+        .to eq([[:suspect, 2, "Vin rouge, Bouteille - 75.0, red"], [:suspect, 3, "Vin rouge, Bouteille - 75.0, red"]])
+    end
+
+    it "says nothing when a value differs" do
+      upsert([accepted(2, reference: "REF1", name: "Vin rouge", container_label: "Bouteille - 75.0"),
+              accepted(3, reference: "REF2", name: "Vin rouge", container_label: "Magnum - 150.0")])
+
+      expect(issues(:possible_duplicate)).to be_empty
+    end
+  end
+
   describe "duplicated references" do
     it "imports no version of a reference read twice, and reports every row" do
       upsert([accepted(2, reference: "REF1"), accepted(3, reference: "REF1"), accepted(4, reference: "REF2")])

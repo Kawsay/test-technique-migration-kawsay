@@ -69,6 +69,25 @@ RSpec.describe Importer::Customers::Upsert do
     end
   end
 
+  describe "possible duplicates" do
+    # Deux références différentes pour le même tiers : les deux sont reprises, le client tranche.
+    it "reports customers that share their name and address" do
+      upsert([accepted(2, reference: "C1", company_name: "Cave Dupont", address1: "1 rue du Port", city: "Lyon"),
+              accepted(3, reference: "C2", company_name: "Cave Dupont", address1: "1 rue du Port", city: "Lyon")])
+
+      expect(Customer.pluck(:reference)).to contain_exactly("C1", "C2")
+      expect(issue(:possible_duplicate).map { |candidate| [candidate.level, candidate.line] })
+        .to eq([[:suspect, 2], [:suspect, 3]])
+    end
+
+    it "says nothing for two customers of the same company in different cities" do
+      upsert([accepted(2, reference: "C1", company_name: "Cave Dupont", city: "Lyon"),
+              accepted(3, reference: "C2", company_name: "Cave Dupont", city: "Nantes")])
+
+      expect(issue(:possible_duplicate)).to be_empty
+    end
+  end
+
   describe "duplicated references" do
     it "imports no version of a reference read twice, and reports every row" do
       upsert([accepted(2, reference: "C1"), accepted(3, reference: "C1"), accepted(4, reference: "C2")])

@@ -18,6 +18,10 @@ class Importer::ProductPrices::Upsert
   # Un tarif par produit et par grille (index unique en base).
   PRICE_KEY = %i[product_id grid_code].freeze
 
+  # Deux produits qui partagent toutes ces valeurs sont probablement le même, saisi deux fois sous des
+  # références différentes.
+  IDENTITY = %i[name container_label color].freeze
+
   def initialize(accepted:, source:, report:)
     @accepted = accepted
     @source   = source
@@ -26,6 +30,7 @@ class Importer::ProductPrices::Upsert
 
   def call
     accepted = without_duplicates
+    report_possible_duplicates(accepted)
 
     products_bilan, prices_bilan, removed_prices = Product.transaction do
       products_bilan = write_products(accepted)
@@ -63,6 +68,21 @@ class Importer::ProductPrices::Upsert
                   entity: entity(accepted), field: KEY, raw: accepted.product[KEY],
                   cells: accepted.record.cells)
       @report.discard_line(@source, accepted.record.line)
+    end
+  end
+
+  # Deux références différentes pour les mêmes valeurs : les deux sont reprises, puisque rien ne prouve
+  # le doublon, mais le client doit vérifier avant de se retrouver avec deux fiches pour un même produit.
+  def report_possible_duplicates(accepted)
+    groups = accepted.group_by { |candidate| IDENTITY.map { |field| candidate.product[field] } }
+
+    groups.each do |values, group|
+      next if group.size == 1
+
+      group.each do |candidate|
+        @report.add(level: :suspect, code: :possible_duplicate, source: @source, line: candidate.record.line,
+                    entity: entity(candidate), raw: values.compact.join(", "), cells: candidate.record.cells)
+      end
     end
   end
 

@@ -27,6 +27,7 @@ class MigrationReport
     vat_rate_missing:            "Taux de TVA absent ou inconnu",
     duplicate_identical:         "Référence présente sur plusieurs lignes identiques",
     duplicate_conflict:          "Référence présente sur plusieurs lignes différentes",
+    possible_duplicate:          "Mêmes valeurs qu'un autre enregistrement, sous une autre référence",
 
     # Clients
     zip_padded:                  "Code postal complété d'un zéro initial (perdu par le tableur)",

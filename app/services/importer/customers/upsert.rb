@@ -10,6 +10,11 @@ class Importer::Customers::Upsert
   # Clé naturelle : la référence du client dans le logiciel source (index unique en base).
   KEY = :reference
 
+  # Deux clients qui partagent toutes ces valeurs sont probablement le même, saisi deux fois sous des
+  # références différentes. La ville seule ou la raison sociale seule ne suffisent pas : une enseigne
+  # a plusieurs établissements.
+  IDENTITY = %i[company_name last_name first_name address1 zip city].freeze
+
   def initialize(accepted:, source:, report:)
     @accepted = accepted
     @source   = source
@@ -17,8 +22,11 @@ class Importer::Customers::Upsert
   end
 
   def call
+    accepted = without_duplicates
+    report_possible_duplicates(accepted)
+
     writer = Importer::Writer.new(model: Customer, key: [KEY], columns: Importer::Customers.attributes)
-    bilan  = writer.call(without_duplicates.map { |accepted| accepted.attributes })
+    bilan  = writer.call(accepted.map { |candidate| candidate.attributes })
 
     @report.record_bilan(@source, :customers, bilan)
   end
@@ -47,6 +55,21 @@ class Importer::Customers::Upsert
                   entity: entity(accepted), field: KEY, raw: accepted.attributes[KEY],
                   cells: accepted.record.cells)
       @report.discard_line(@source, accepted.record.line)
+    end
+  end
+
+  # Deux références différentes pour les mêmes valeurs : les deux sont reprises, puisque rien ne prouve
+  # le doublon, mais le client doit vérifier avant de se retrouver avec deux fiches pour un même tiers.
+  def report_possible_duplicates(accepted)
+    groups = accepted.group_by { |candidate| IDENTITY.map { |field| candidate.attributes[field] } }
+
+    groups.each do |values, group|
+      next if group.size == 1
+
+      group.each do |candidate|
+        @report.add(level: :suspect, code: :possible_duplicate, source: @source, line: candidate.record.line,
+                    entity: entity(candidate), raw: values.compact.join(", "), cells: candidate.record.cells)
+      end
     end
   end
 
