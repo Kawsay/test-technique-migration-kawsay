@@ -230,14 +230,26 @@ module Importer::Parsers
     Success(Parsed.new(value: terms[key]))
   end
 
+  # Première année plausible pour un millésime : au-delà, c'est un autre nombre de quatre chiffres
+  # (un lot, une contenance) et non une année de récolte.
+  FIRST_VINTAGE_YEAR = 1900
+
   # Millésime écrit en fin de désignation (ex. "Coteaux Nord 2019" => "2019").
-  # Une désignation sans millésime ("Cuvée Marie", "Haut Montcalm N.M.") n'en a pas : nil.
+  # Une désignation sans millésime ("Cuvée Marie", "Haut Montcalm N.M.") n'en a pas : nil,
+  # tout comme une année invraisemblable ("Cuvée 3000").
   def self.vintage(name)
     last_word = name.to_s.split.last.to_s
     return Success(Parsed.new(value: nil)) unless last_word.length == 4 && last_word.delete("0-9").empty?
+    return Success(Parsed.new(value: nil)) unless vintage_years.cover?(last_word.to_i)
 
     Success(Parsed.new(value: last_word))
   end
+
+  # Un millésime peut précéder la vendange (vin primeur vendu par anticipation) : l'année suivante est admise.
+  def self.vintage_years
+    (FIRST_VINTAGE_YEAR..Date.today.year + 1)
+  end
+  private_class_method :vintage_years
 
   # Contenant d'un produit, sous l'une des trois formes suivantes :
   #   "<libellé> - <volume>"  ex. "Bouteille - 75.0" : une unité de 75 cl ;

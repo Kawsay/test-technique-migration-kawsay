@@ -333,7 +333,8 @@ RSpec.describe Importer::Parsers do
   end
 
   describe ".vintage" do
-    { "Coteaux Nord 2019" => "2019", "Haut Montcalm N.M." => nil, "Cuvée Marie" => nil, "Cuvée 12345" => nil, nil => nil }
+    { "Coteaux Nord 2019" => "2019", "Haut Montcalm N.M." => nil, "Cuvée Marie" => nil, "Cuvée 12345" => nil,
+      "Cuvée 3000" => nil, "Lot 1234" => nil, "Vieille Réserve 1900" => "1900", nil => nil }
       .each do |name, vintage|
         it "reads #{vintage.inspect} in #{name.inspect}" do
           expect(described_class.vintage(name)).to eq(Success(described_class::Parsed.new(value: vintage)))
