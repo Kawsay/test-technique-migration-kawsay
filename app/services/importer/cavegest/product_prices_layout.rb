@@ -32,6 +32,7 @@ class Importer::Cavegest::ProductPricesLayout < Importer::Layout::Base
   }.freeze
 
   # Grilles saisies toutes taxes comprises, d'après le préambule de l'export
+  # ("ATTENTION : la grille EXPO est saisie en TTC") : converties en HT avec la TVA du produit.
   TTC_GRIDS = ["EXPO"].freeze
 
   # Grilles dont les prix HT sont égaux dans l'export : EXPO converti en HT = DEPC au centime près.
