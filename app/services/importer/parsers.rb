@@ -266,12 +266,12 @@ module Importer::Parsers
     return Success(Parsed.new(value: nil)) if text.empty?
 
     label, volume = text.split(" - ", 2)
-    if volume && types.key?(label) && decimal_number?(volume)
+    if volume && types.key?(label) && whole_milliliters?(volume, volume_unit_ml)
       return Success(Parsed.new(value: { type: types[label], units: 1, volume_ml: milliliters(volume, volume_unit_ml) }))
     end
 
     units, volume = text.split(" x ", 2)
-    if volume && positive_integer?(units) && decimal_number?(volume)
+    if volume && positive_integer?(units) && whole_milliliters?(volume, volume_unit_ml)
       value = { type: case_type, units: Integer(units, 10), volume_ml: milliliters(volume, volume_unit_ml) }
       return Success(Parsed.new(value: value, notice: :container_read_as_case))
     end
@@ -298,8 +298,15 @@ module Importer::Parsers
   end
   private_class_method :positive_integer?
 
+  # Un volume qui ne tombe pas sur un millilitre entier n'est pas un volume de vente : plutôt que de
+  # l'arrondir en silence, le contenant est déclaré illisible et le libellé d'origine est conservé.
+  def self.whole_milliliters?(volume, volume_unit_ml)
+    decimal_number?(volume) && (BigDecimal(volume) * volume_unit_ml).frac.zero?
+  end
+  private_class_method :whole_milliliters?
+
   def self.milliliters(volume, volume_unit_ml)
-    (BigDecimal(volume) * volume_unit_ml).round.to_i
+    (BigDecimal(volume) * volume_unit_ml).to_i
   end
   private_class_method :milliliters
 end

@@ -373,7 +373,9 @@ RSpec.describe Importer::Parsers do
       expect(container(nil)).to eq(Success(described_class::Parsed.new(value: nil)))
     end
 
-    ["Jéroboam - 300.0", "Bouteille - soixante-quinze", "0 x 75", "Carton", "6 x", "Fût"].each do |raw|
+    # 33,37 cl font 333,7 ml : arrondir en silence fausserait le volume vendu.
+    ["Jéroboam - 300.0", "Bouteille - soixante-quinze", "0 x 75", "Carton", "6 x", "Fût",
+     "Bouteille - 33.37", "6 x 33.37"].each do |raw|
       it "fails on #{raw.inspect}" do
         expect(container(raw)).to eq(Failure(:container_invalid))
       end
