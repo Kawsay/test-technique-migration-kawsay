@@ -39,6 +39,7 @@ RSpec.describe MigrationReport do
           field: :zip,
           raw: 1000,
           value: "01000",
+          previous: nil,
           cells: nil
         )
       )
@@ -47,7 +48,15 @@ RSpec.describe MigrationReport do
     it "leaves the optional attributes empty" do
       report.add(level: :rejected, code: :import_aborted, source:)
 
-      expect(report.issues.first).to have_attributes(line: nil, entity: nil, field: nil, raw: nil, value: nil)
+      expect(report.issues.first)
+        .to have_attributes(line: nil, entity: nil, field: nil, raw: nil, value: nil, previous: nil)
+    end
+
+    # Une valeur effacée ou remplacée en base est rapportée avec celle qu'elle remplace.
+    it "records the value a record carried before the import" do
+      report.add(level: :info, code: :price_removed, source:, previous: BigDecimal("14"))
+
+      expect(report.issues.first).to have_attributes(previous: BigDecimal("14"), value: nil)
     end
 
     it "keeps the issues in the order they were recorded" do

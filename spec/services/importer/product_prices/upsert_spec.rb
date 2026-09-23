@@ -81,7 +81,8 @@ RSpec.describe Importer::ProductPrices::Upsert do
       upsert([accepted(2, prices: { "DEPC" => "10.00" }, empty_grids: ["SALON"])])
 
       expect(issues(:price_removed).first)
-        .to have_attributes(level: :info, line: 2, entity: "Produit REF1, grille SALON", value: BigDecimal("14"))
+        .to have_attributes(level: :info, line: 2, entity: "Produit REF1, grille SALON",
+                            previous: BigDecimal("14"), value: nil)
     end
 
     # La lecture a échoué : rien ne dit que le client a supprimé ce tarif.

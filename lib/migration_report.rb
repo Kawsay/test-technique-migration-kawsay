@@ -22,12 +22,14 @@ class MigrationReport
   # entity - String, enregistrement concerné en termes métier (ex. "Client T00022").
   #          nil si la ligne n'a pas pu être identifiée.
   # field  - Symbol, attribut concerné (ex. :zip). nil si l'événement porte sur toute la ligne.
-  # raw    - valeur lue dans le fichier, avant toute transformation (ex. 1000).
-  # value  - valeur retenue en base (ex. "01000") ; nil si rien n'a été enregistré.
-  #          raw et value ensemble rendent une correction automatique vérifiable.
-  # cells  - Hash de la ligne d'origine complète, pour que le client puisse corriger
-  #          et réimporter une ligne rejetée. nil pour un événement sans ligne.
-  Issue = Data.define(:level, :code, :source, :line, :entity, :field, :raw, :value, :cells) do
+  # raw      - valeur lue dans le fichier, avant toute transformation (ex. 1000).
+  # value    - valeur retenue en base (ex. "01000") ; nil si rien n'a été enregistré.
+  #            raw et value ensemble rendent une correction automatique vérifiable.
+  # previous - valeur qui était en base avant la reprise, quand celle-ci l'efface ou la remplace
+  #            (ex. le montant d'un tarif retiré) ; nil sinon.
+  # cells    - Hash de la ligne d'origine complète, pour que le client puisse corriger
+  #            et réimporter une ligne rejetée. nil pour un événement sans ligne.
+  Issue = Data.define(:level, :code, :source, :line, :entity, :field, :raw, :value, :previous, :cells) do
     # Libellé lisible par le client, à défaut le code lui-même : aucun événement ne doit rester muet.
     def message
       I18n.t(code, scope: "migration.codes", locale: LOCALE, default: code.to_s)
@@ -69,7 +71,7 @@ class MigrationReport
     raise ArgumentError, "level must be a symbol"   unless level.is_a?(Symbol)
 
     issue =  Issue.new(level:, code:, source:, line: nil, entity: nil, field: nil,
-                      raw: nil, value: nil, cells: nil, **attrs)
+                      raw: nil, value: nil, previous: nil, cells: nil, **attrs)
     @issues << issue
     issue
   end

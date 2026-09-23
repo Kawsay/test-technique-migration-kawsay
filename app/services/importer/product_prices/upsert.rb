@@ -105,11 +105,10 @@ class Importer::ProductPrices::Upsert
     removed
   end
 
-  # value : montant retiré de la base.
   def report_removal(candidate, price)
     @report.add(level: :info, code: :price_removed, source: @source, line: candidate.record.line,
                 entity: "#{entity(candidate)}, grille #{price.grid_code}", field: :amount_ht,
-                value: price.amount_ht, cells: candidate.record.cells)
+                previous: price.amount_ht, cells: candidate.record.cells)
   end
 
   def entity(accepted)
