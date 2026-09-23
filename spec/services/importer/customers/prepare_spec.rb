@@ -265,6 +265,6 @@ RSpec.describe Importer::Customers::Prepare do
     shipping   = { shipping_address1: "2 rue du Port", shipping_zip: 13002, shipping_country: "France" }
     attributes = attributes_of(shipping)
 
-    expect(attributes.keys).to match_array(Importer::Customers::ATTRIBUTES)
+    expect(attributes.keys).to match_array(Importer::Customers.attributes)
   end
 end

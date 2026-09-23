@@ -4,7 +4,8 @@ cd "$(dirname "$0")/.."
 
 bundle install
 
-if ! bundle exec rake db:setup; then
+# La base de développement, puis celle des tests (APP_ENV=test), que rspec attend déjà créée.
+if ! bundle exec rake db:setup || ! APP_ENV=test bundle exec rake db:setup; then
   cat <<'MSG'
 
 Connexion à PostgreSQL impossible. Deux solutions :

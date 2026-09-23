@@ -17,7 +17,7 @@ class Importer::Customers::Upsert
   end
 
   def call
-    writer = Importer::Writer.new(model: Customer, key: [KEY], columns: Importer::Customers::ATTRIBUTES)
+    writer = Importer::Writer.new(model: Customer, key: [KEY], columns: Importer::Customers.attributes)
     bilan  = writer.call(without_duplicates.map { |accepted| accepted.attributes })
 
     @report.record_bilan(@source, :customers, bilan)

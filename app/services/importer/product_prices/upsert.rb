@@ -67,7 +67,7 @@ class Importer::ProductPrices::Upsert
   end
 
   def write_products(accepted)
-    writer = Importer::Writer.new(model: Product, key: [KEY], columns: Importer::ProductPrices::PRODUCT_ATTRIBUTES)
+    writer = Importer::Writer.new(model: Product, key: [KEY], columns: Importer::ProductPrices.product_attributes)
 
     writer.call(accepted.map { |candidate| candidate.product })
   end
@@ -78,7 +78,7 @@ class Importer::ProductPrices::Upsert
   end
 
   def write_prices(accepted, product_ids)
-    writer = Importer::Writer.new(model: ProductPrice, key: PRICE_KEY, columns: Importer::ProductPrices::PRICE_ATTRIBUTES)
+    writer = Importer::Writer.new(model: ProductPrice, key: PRICE_KEY, columns: Importer::ProductPrices.price_attributes)
     rows   = accepted.flat_map do |candidate|
       product_id = product_ids.fetch(candidate.product[KEY])
 

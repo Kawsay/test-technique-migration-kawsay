@@ -52,7 +52,7 @@ RSpec.describe Importer::ProductPrices::Prepare do
     end
 
     it "returns every attribute written in the database" do
-      expect(accepted_with.product.keys).to match_array(Importer::ProductPrices::PRODUCT_ATTRIBUTES)
+      expect(accepted_with.product.keys).to match_array(Importer::ProductPrices.product_attributes)
     end
 
     it "does not write anything in the database" do
