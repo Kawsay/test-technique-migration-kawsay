@@ -53,6 +53,8 @@ class Importer::Customers::Prepare
     attributes = billing_attributes(reader)
     attributes = attributes.merge(shipping_attributes(record, attributes))
 
+    check_excise_number(reader, attributes)
+
     result = Importer::Customers::Contract.new.call(attributes)
 
     if result.failure?
@@ -62,6 +64,14 @@ class Importer::Customers::Prepare
 
     reader.notices.each { |notice| report_notice(record, notice) }
     Accepted.new(record: record, attributes: attributes)
+  end
+
+  # Un numéro d'accise sans numéro de TVA empêche de facturer ce client : l'un des deux manque, et seul
+  # le client sait lequel. Les deux valeurs sont reprises telles quelles, et le manque est signalé.
+  def check_excise_number(reader, attributes)
+    return if attributes[:excise_number].nil? || !attributes[:vat_number].nil?
+
+    reader.note(:excise_without_vat_number, field: :vat_number, value: nil)
   end
 
   def billing_attributes(reader)

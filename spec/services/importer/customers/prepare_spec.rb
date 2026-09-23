@@ -52,6 +52,25 @@ RSpec.describe Importer::Customers::Prepare do
       expect(attributes).to include(vat_number: "FR69995954011", excise_number: "FR012345E")
     end
 
+    # Sans numéro de TVA, un tiers qui détient un numéro d'accise ne peut pas être facturé.
+    it "reports an excise number without a VAT number" do
+      attributes_of(excise_number: "FR012345E", vat_number: nil)
+
+      expect(issue(:excise_without_vat_number)).to have_attributes(level: :suspect, field: :vat_number)
+    end
+
+    it "says nothing when both numbers are there" do
+      attributes_of(excise_number: "FR012345E", vat_number: "FR69995954011")
+
+      expect(issue(:excise_without_vat_number)).to be_nil
+    end
+
+    it "says nothing when the customer has no excise number" do
+      attributes_of(excise_number: nil, vat_number: nil)
+
+      expect(issue(:excise_without_vat_number)).to be_nil
+    end
+
     it "keeps the file order" do
       accepted = import([customer_row(reference: "C1"), customer_row(reference: "C2")])
 
@@ -269,6 +288,7 @@ RSpec.describe Importer::Customers::Prepare do
         [:repaired, :kind_reseller_as_customer]   => 981,
         [:suspect,  :email_invalid]               => 179,
         [:suspect,  :phone_unassigned]            => 159,
+        [:suspect,  :excise_without_vat_number]   => 303,
         [:rejected, :name_missing]                => 3
       )
     end

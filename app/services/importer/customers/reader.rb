@@ -9,6 +9,7 @@ class Importer::Customers::Reader < Importer::Reader
 
     # Valeurs reprises telles quelles mais douteuses : le client vérifie.
     phone_unassigned:            :suspect,
+    excise_without_vat_number:   :suspect,
 
     # Valeurs illisibles : le champ est vidé, le client corrige son fichier s'il y tient.
     zip_invalid:                 :suspect,

@@ -38,6 +38,7 @@ class MigrationReport
     phone_invalid:               "Téléphone illisible, non repris",
     email_invalid:               "Adresse e-mail invalide, non reprise",
     date_invalid:                "Date illisible, non reprise",
+    excise_without_vat_number:   "Numéro d'accise sans numéro de TVA : facturation impossible",
     flag_invalid:                "Oui/non illisible, non repris",
     kind_reseller_as_customer:   "Revendeur repris comme client",
 
