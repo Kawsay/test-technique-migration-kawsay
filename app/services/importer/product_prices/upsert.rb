@@ -57,11 +57,10 @@ class Importer::ProductPrices::Upsert
     # Les lignes d'une même référence portent-elles toutes le même produit, aux mêmes prix ?
     identical = group.map { |accepted| [accepted.product, accepted.prices] }.uniq.one?
     code      = identical ? :duplicate_identical : :duplicate_conflict
-    lines     = group.map { |accepted| accepted.record.line }
 
     group.each do |accepted|
       @report.add(level: :rejected, code: code, source: @source, line: accepted.record.line,
-                  entity: entity(accepted), field: KEY, raw: accepted.product[KEY], value: lines.join(", "),
+                  entity: entity(accepted), field: KEY, raw: accepted.product[KEY],
                   cells: accepted.record.cells)
       @report.discard_line(@source, accepted.record.line)
     end

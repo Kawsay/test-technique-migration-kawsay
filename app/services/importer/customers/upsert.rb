@@ -41,11 +41,10 @@ class Importer::Customers::Upsert
     # Les lignes d'une même référence portent-elles toutes les mêmes valeurs ?
     identical = group.map { |accepted| accepted.attributes }.uniq.one?
     code      = identical ? :duplicate_identical : :duplicate_conflict
-    lines     = group.map { |accepted| accepted.record.line }
 
     group.each do |accepted|
       @report.add(level: :rejected, code: code, source: @source, line: accepted.record.line,
-                  entity: entity(accepted), field: KEY, raw: accepted.attributes[KEY], value: lines.join(", "),
+                  entity: entity(accepted), field: KEY, raw: accepted.attributes[KEY],
                   cells: accepted.record.cells)
       @report.discard_line(@source, accepted.record.line)
     end

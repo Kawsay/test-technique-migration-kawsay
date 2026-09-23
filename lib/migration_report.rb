@@ -1,11 +1,62 @@
 class MigrationReport
-  LOCALE = :fr
-
   # rejected : pas en base                            -> le client corrige son fichier
   # repaired : en base, valeur modifiée par une règle -> le client valide la règle
   # suspect  : en base, valeur douteuse               -> le client vérifie
   # info     : transformation attendue                -> rien à faire
   LEVELS = %i(rejected repaired suspect info).freeze
+
+  # Ce que chaque niveau demande au client, dans l'ordre de gravité.
+  LEVEL_LABELS = {
+    rejected: "Non repris",
+    repaired: "Repris avec correction automatique",
+    suspect:  "Repris, à vérifier",
+    info:     "Pour information"
+  }.freeze
+
+  # Libellé lisible par le client, un par code émis. Un code sans libellé s'affiche tel quel :
+  # le rapport reste lisible, et un test vérifie qu'il n'en manque aucun.
+  LABELS = {
+    # Fichier
+    file_rejected:               "Fichier non repris",
+    column_ignored:              "Colonne en trop, non reprise",
+
+    # Ligne
+    reference_missing:           "Référence absente",
+    name_missing:                "Ni raison sociale, ni nom, ni prénom",
+    kind_unknown:                "Type de tiers inconnu",
+    vat_rate_missing:            "Taux de TVA absent ou inconnu",
+    duplicate_identical:         "Référence présente sur plusieurs lignes identiques",
+    duplicate_conflict:          "Référence présente sur plusieurs lignes différentes",
+
+    # Clients
+    zip_padded:                  "Code postal complété d'un zéro initial (perdu par le tableur)",
+    zip_invalid:                 "Code postal illisible, non repris",
+    country_defaulted:           "Pays absent, pays par défaut appliqué",
+    country_unknown:             "Pays inconnu, non repris",
+    phone_leading_zero_restored: "Téléphone complété d'un zéro initial (perdu par le tableur)",
+    phone_unassigned:            "Téléphone dans une plage non attribuée en métropole",
+    phone_invalid:               "Téléphone illisible, non repris",
+    email_invalid:               "Adresse e-mail invalide, non reprise",
+    date_invalid:                "Date illisible, non reprise",
+    flag_invalid:                "Oui/non illisible, non repris",
+    kind_reseller_as_customer:   "Revendeur repris comme client",
+
+    # Produits et tarifs
+    color_unknown:               "Couleur inconnue, non reprise",
+    section_unknown:             "Section inconnue : appellation et type de produit non repris",
+    container_invalid:           "Contenant illisible, conservé tel quel",
+    container_volume_missing:    "Contenant sans volume, conservé tel quel",
+    container_read_as_case:      "Contenant lu comme un carton",
+    vat_rate_invalid:            "Taux de TVA illisible",
+    vat_rate_unknown:            "Taux de TVA inapplicable en France",
+    integer_invalid:             "Nombre entier illisible, non repris",
+    amount_invalid:              "Montant illisible, tarif non repris",
+    amount_not_positive:         "Montant nul ou négatif, tarif non repris",
+    price_ttc_converted:         "Prix saisi TTC, converti en HT",
+    price_grids_inconsistent:    "Prix incohérent avec celui d'une autre grille",
+    price_grid_empty:            "Grille sans prix : aucun tarif créé",
+    price_removed:               "Grille désormais vide : tarif retiré de la base"
+  }.freeze
 
   # Un événement notable survenu pendant la reprise, rattaché à une ligne d'un fichier source.
   #
@@ -32,7 +83,11 @@ class MigrationReport
   Issue = Data.define(:level, :code, :source, :line, :entity, :field, :raw, :value, :previous, :cells) do
     # Libellé lisible par le client, à défaut le code lui-même : aucun événement ne doit rester muet.
     def message
-      I18n.t(code, scope: "migration.codes", locale: LOCALE, default: code.to_s)
+      LABELS.fetch(code, code.to_s)
+    end
+
+    def level_label
+      LEVEL_LABELS.fetch(level)
     end
   end
 
@@ -116,6 +171,16 @@ class MigrationReport
 
   def by_level(level)
     issues_for_client.select { |issue| issue.level == level }
+  end
+
+  # Anomalies du client, des plus graves aux moins graves, puis dans l'ordre des lignes du fichier.
+  def issues_by_severity
+    issues_for_client.sort_by { |issue| [LEVELS.index(issue.level), issue.source, issue.line || 0] }
+  end
+
+  # Codes émis qui n'ont pas de libellé : ils s'afficheraient tels quels au client.
+  def codes_without_label
+    issues.map { |issue| issue.code }.uniq.reject { |code| LABELS.key?(code) }
   end
 
   private

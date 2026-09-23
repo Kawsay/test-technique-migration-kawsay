@@ -17,7 +17,8 @@ require "uri"
 APP_ROOT = File.expand_path("..", __dir__)
 $LOAD_PATH.unshift(APP_ROOT) unless $LOAD_PATH.include?(APP_ROOT)
 
-DATA_DIR = File.join(APP_ROOT, "data")
+DATA_DIR   = File.join(APP_ROOT, "data")
+REPORT_DIR = File.join(DATA_DIR, "report")   # rapports d'anomalies remis au client
 
 Dotenv.load(File.join(APP_ROOT, ".env"))
 
@@ -48,10 +49,6 @@ end
 ActiveRecord::Base.establish_connection(DatabaseConfig.resolve)
 
 ActiveRecord::Base.logger = Logger.new(ENV["AR_LOG"] ? $stdout : IO::NULL)
-
-# Locale globale laissée en :en (messages ActiveRecord) ; le rapport traduit explicitement en :fr.
-I18n.load_path += Dir[File.join(APP_ROOT, "config", "locales", "*.yml")]
-I18n.available_locales = %i(en fr)
 
 %w(app/models lib).each do |dir|
   Dir[File.join(APP_ROOT, dir, "**", "*.rb")].sort.each { |file| require file }

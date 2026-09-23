@@ -106,8 +106,8 @@ RSpec.describe Importer::ProductPrices::Upsert do
       upsert([accepted(2, reference: "REF1"), accepted(3, reference: "REF1"), accepted(4, reference: "REF2")])
 
       expect(Product.pluck(:reference)).to eq(["REF2"])
-      expect(issues(:duplicate_identical).map { |candidate| [candidate.level, candidate.line, candidate.value] })
-        .to eq([[:rejected, 2, "2, 3"], [:rejected, 3, "2, 3"]])
+      expect(issues(:duplicate_identical).map { |candidate| [candidate.level, candidate.line, candidate.raw] })
+        .to eq([[:rejected, 2, "REF1"], [:rejected, 3, "REF1"]])
     end
 
     # Les corrections signalées sur une ligne non reprise n'appellent aucune action du client.

@@ -174,17 +174,19 @@ RSpec.describe MigrationReport do
   end
 
   describe "recorded issue" do
-    it "reads its message from the translations" do
+    it "carries the label the client reads" do
       issue = report.add(level: :repaired, code: :zip_padded, source:)
 
-      expect(issue.message).to eq("Code postal complété d'un zéro initial (perdu par Excel)")
+      expect(issue.message).to eq("Code postal complété d'un zéro initial (perdu par le tableur)")
+      expect(issue.level_label).to eq("Repris avec correction automatique")
     end
 
-    # Un code sans libellé reste lisible, et le test des libellés le signalera.
-    it "falls back to the code when it has no translation" do
-      issue = report.add(level: :repaired, code: :not_translated_yet, source:)
+    # Un code sans libellé reste lisible, et #codes_without_label le signale.
+    it "falls back to the code itself when it has no label" do
+      issue = report.add(level: :repaired, code: :not_labelled_yet, source:)
 
-      expect(issue.message).to eq("not_translated_yet")
+      expect(issue.message).to eq("not_labelled_yet")
+      expect(report.codes_without_label).to eq([:not_labelled_yet])
     end
   end
 end

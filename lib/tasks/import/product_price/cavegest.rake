@@ -11,6 +11,7 @@ namespace :import do
       Importer::ProductPrices::Upsert.new(accepted: accepted, source: adapter.file_name, report: report).call
 
       puts Importer::Summary.new(report).to_s
+      puts "", "Anomalies détaillées : #{Importer::IssuesCsv.new(report).write(Importer::IssuesCsv.path_for(adapter.file_name))}"
     end
   end
 end

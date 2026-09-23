@@ -74,8 +74,8 @@ RSpec.describe Importer::Customers::Upsert do
       upsert([accepted(2, reference: "C1"), accepted(3, reference: "C1"), accepted(4, reference: "C2")])
 
       expect(Customer.pluck(:reference)).to eq(["C2"])
-      expect(issue(:duplicate_identical).map { |candidate| [candidate.level, candidate.line, candidate.value] })
-        .to eq([[:rejected, 2, "2, 3"], [:rejected, 3, "2, 3"]])
+      expect(issue(:duplicate_identical).map { |candidate| [candidate.level, candidate.line, candidate.raw] })
+        .to eq([[:rejected, 2, "C1"], [:rejected, 3, "C1"]])
     end
 
     it "distinguishes rows that differ from one another" do
