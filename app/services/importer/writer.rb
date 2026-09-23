@@ -1,11 +1,12 @@
 # Écrit des enregistrements dans une table, sans doublon et sans réécrire ceux qui n'ont pas changé.
 #
-# L'écriture est idempotente : écrire deux fois les mêmes enregistrements ne modifie aucune ligne,
-# updated_at compris. Seuls les enregistrements nouveaux ou réellement modifiés sont écrits.
+# Chaque enregistrement passe par son modèle ActiveRecord : ses validations s'appliquent, et le suivi des
+# modifications (changed?) dit s'il est nouveau, modifié ou inchangé. Un enregistrement inchangé n'est pas
+# réécrit, updated_at compris : l'écriture est idempotente.
 #
 # model   - classe ActiveRecord de la table (ex. Customer).
 # key     - Array des colonnes de la clé naturelle, couverte par un index unique (ex. [:reference]).
-# columns - Array des colonnes écrites : chaque enregistrement est comparé à la base sur ces colonnes.
+# columns - Array des colonnes écrites.
 class Importer::Writer
   def initialize(model:, key:, columns:)
     @model   = model
@@ -18,42 +19,46 @@ class Importer::Writer
   #
   # Renvoie le bilan de l'écriture (MigrationReport::Bilan).
   def call(rows)
-    rows     = rows.map { |row| @columns.to_h { |column| [column, row[column]] } }
-    existing = existing_rows(rows)
+    existing = existing_records(rows)
+    records  = rows.map { |row| record_for(row, existing) }
 
-    to_create = rows.reject { |row| existing.key?(key_of(row)) }
-    to_update = rows.select { |row| existing.key?(key_of(row)) && existing[key_of(row)] != row }
+    created = records.count { |record| record.new_record? }
+    updated = records.count { |record| record.persisted? && record.changed? }
 
-    write(to_create + to_update)
+    # Un enregistrement invalide est une erreur de notre import (le contrat aurait dû le rejeter) : save! lève,
+    # et aucun enregistrement n'est écrit, même dans une transaction déjà ouverte (requires_new).
+    @model.transaction(requires_new: true) { records.each { |record| record.save! } }
 
-    MigrationReport::Bilan.new(accepted: rows.size, created: to_create.size, updated: to_update.size,
-                               unchanged: rows.size - to_create.size - to_update.size)
+    MigrationReport::Bilan.new(accepted: records.size, created: created, updated: updated,
+                               unchanged: records.size - created - updated)
   end
 
   private
 
-  def key_of(row)
-    row.values_at(*@key)
+  # Enregistrements déjà en base parmi ceux à écrire, en une seule requête, rangés par clé.
+  def existing_records(rows)
+    return {} if rows.empty? # ActiveRecord ne sait pas écrire la condition d'une liste de clés vide
+
+    keys    = rows.map { |row| key_of(row) }
+    records = @model.where(@key => keys)
+
+    records.index_by { |record| key_of(record) }
   end
 
-  # Enregistrements déjà en base parmi ceux à écrire, sous la même forme, pour être comparés colonne par colonne.
-  # Avec une clé de plusieurs colonnes, la requête peut en ramener d'autres : ils ne sont jamais consultés.
-  def existing_rows(rows)
-    return {} if rows.empty?
-
-    conditions = @key.to_h { |column| [column, rows.map { |row| row[column] }.uniq] }
-
-    @model.where(conditions)
-      .pluck(*@columns)
-      .map { |values| @columns.zip(values).to_h }
-      .index_by { |row| key_of(row) }
+  # L'enregistrement existant, ou un nouveau, avec les valeurs de la ligne.
+  def record_for(row, existing)
+    existing.fetch(key_of(row)) { @model.new }.tap do |record|
+      record.assign_attributes(values_of(row))
+    end
   end
 
-  # upsert_all écrit toutes les lignes dans une seule requête : les valeurs sont écrites dans le SQL,
-  # sans paramètres liés. Un fichier bien plus gros demanderait de découper l'écriture (each_slice).
-  def write(rows)
-    return if rows.empty?
+  # Valeurs à écrire : toutes les colonnes, à nil quand la ligne ne les porte pas.
+  def values_of(row)
+    @columns.to_h { |column| [column, row[column]] }
+  end
 
-    @model.upsert_all(rows.sort_by { |row| key_of(row) }, unique_by: @key, record_timestamps: true)
+  # Valeurs de la clé d'une ligne (Hash) ou d'un enregistrement (ActiveRecord) : les deux se lisent avec [].
+  def key_of(row_or_record)
+    @key.map { |column| row_or_record[column] }
   end
 end
