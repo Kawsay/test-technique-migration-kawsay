@@ -99,21 +99,21 @@ RSpec.describe MigrationReport do
     end
   end
 
-  describe "#record_tally" do
-    let(:tally) { MigrationReport::Tally.new(accepted: 2, created: 2, updated: 0, unchanged: 0) }
+  describe "#record_bilan" do
+    let(:bilan) { MigrationReport::Bilan.new(accepted: 2, created: 2, updated: 0, unchanged: 0) }
 
-    it "records one tally per file and type of record" do
-      report.record_tally(source, :products, tally)
-      report.record_tally(source, :product_prices, tally)
+    it "records one bilan per file and type of record" do
+      report.record_bilan(source, :products, bilan)
+      report.record_bilan(source, :product_prices, bilan)
 
-      expect(report.tallies.keys).to eq([[source, :products], [source, :product_prices]])
+      expect(report.bilans.keys).to eq([[source, :products], [source, :product_prices]])
     end
 
     # Un rapport décrit une seule exécution : un rejeu s'écrit dans un nouveau rapport.
-    it "refuses a second tally for the same file and type of record" do
-      report.record_tally(source, :products, tally)
+    it "refuses a second bilan for the same file and type of record" do
+      report.record_bilan(source, :products, bilan)
 
-      expect { report.record_tally(source, :products, tally) }.to raise_error(ArgumentError, /déjà enregistré/)
+      expect { report.record_bilan(source, :products, bilan) }.to raise_error(ArgumentError, /déjà enregistré/)
     end
   end
 end

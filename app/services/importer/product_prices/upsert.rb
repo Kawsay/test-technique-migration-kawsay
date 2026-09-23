@@ -27,15 +27,15 @@ class Importer::ProductPrices::Upsert
   def call
     accepted = without_duplicates
 
-    products_tally, prices_tally, removed_prices = Product.transaction do
-      products_tally = write_products(accepted)
+    products_bilan, prices_bilan, removed_prices = Product.transaction do
+      products_bilan = write_products(accepted)
       product_ids    = product_ids_of(accepted)
 
-      [products_tally, write_prices(accepted, product_ids), remove_emptied_prices(accepted, product_ids)]
+      [products_bilan, write_prices(accepted, product_ids), remove_emptied_prices(accepted, product_ids)]
     end
 
-    @report.record_tally(@source, :products, products_tally)
-    @report.record_tally(@source, :product_prices, prices_tally)
+    @report.record_bilan(@source, :products, products_bilan)
+    @report.record_bilan(@source, :product_prices, prices_bilan)
     removed_prices.each { |candidate, price| report_removal(candidate, price) }
   end
 

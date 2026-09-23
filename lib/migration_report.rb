@@ -1,11 +1,11 @@
 class MigrationReport
+  LOCALE = :fr
+
   # rejected : pas en base                            -> le client corrige son fichier
   # repaired : en base, valeur modifiée par une règle -> le client valide la règle
   # suspect  : en base, valeur douteuse               -> le client vérifie
   # info     : transformation attendue                -> rien à faire
   LEVELS = %i(rejected repaired suspect info).freeze
-
-  LOCALE = :fr
 
   # Un événement notable survenu pendant la reprise, rattaché à une ligne d'un fichier source.
   #
@@ -46,7 +46,7 @@ class MigrationReport
   #
   # accepted == created + updated + unchanged.
   # Lors d'un rejeu sur le même fichier, created et updated doivent valoir 0.
-  Tally = Data.define(:accepted, :created, :updated, :unchanged) do
+  Bilan = Data.define(:accepted, :created, :updated, :unchanged) do
     def initialize(accepted:, created:, updated:, unchanged:)
       unless accepted == created + updated + unchanged
         raise ArgumentError, "bilan incohérent : #{accepted} != #{created} + #{updated} + #{unchanged}"
@@ -58,7 +58,7 @@ class MigrationReport
 
   def initialize
     @issues    = []
-    @tallies   = {}
+    @bilans    = {}
     @declared  = {}
   end
 
@@ -73,17 +73,28 @@ class MigrationReport
   end
 
   # entity - Symbol, type d'enregistrement écrit (ex. :products) : un fichier peut en alimenter plusieurs.
-  def record_tally(source, entity, tally) = write_once(@tallies, [source, entity], tally)
-  def record_declared(source, **totals)   = write_once(@declared, source, totals.freeze)
+  def record_bilan(source, entity, bilan)
+    write_once(@bilans, [source, entity], bilan)
+  end
 
-  def issues    = @issues.dup.freeze
-  def tallies   = @tallies.dup.freeze
-  def declared  = @declared.dup.freeze
+  def record_declared(source, **totals)
+    write_once(@declared, source, totals.freeze)
+  end
 
-  def by_level(level) = issues.select { |issue| issue.level == level }
+  def issues
+    @issues.dup.freeze
+  end
 
-  def untranslated_codes
-    @issues.map(&:code).uniq.reject { |code| I18n.exists?(code, locale: LOCALE, scope: "migration.codes") }
+  def bilans
+    @bilans.dup.freeze
+  end
+
+  def declared
+    @declared.dup.freeze
+  end
+
+  def by_level(level)
+    issues.select { |issue| issue.level == level }
   end
 
   private

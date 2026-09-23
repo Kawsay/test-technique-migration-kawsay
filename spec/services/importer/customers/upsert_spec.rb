@@ -16,7 +16,7 @@ RSpec.describe Importer::Customers::Upsert do
     described_class.new(accepted: accepted_customers, source: source, report: report).call
   end
 
-  def tally = report.tallies[[source, :customers]]
+  def bilan = report.bilans[[source, :customers]]
 
   def issue(code)
     report.issues.select { |candidate| candidate.code == code }
@@ -31,7 +31,7 @@ RSpec.describe Importer::Customers::Upsert do
   it "reports how many customers were created" do
     upsert([accepted(2, reference: "C1")])
 
-    expect(tally).to have_attributes(accepted: 1, created: 1, updated: 0, unchanged: 0)
+    expect(bilan).to have_attributes(accepted: 1, created: 1, updated: 0, unchanged: 0)
   end
 
   describe "replaying the same file" do
@@ -45,7 +45,7 @@ RSpec.describe Importer::Customers::Upsert do
 
       expect(Customer.count).to eq(2)
       expect(Customer.pluck(:reference, :updated_at).to_h).to eq(written_at)
-      expect(second_report.tallies[[source, :customers]]).to have_attributes(accepted: 2, created: 0, updated: 0, unchanged: 2)
+      expect(second_report.bilans[[source, :customers]]).to have_attributes(accepted: 2, created: 0, updated: 0, unchanged: 2)
     end
 
     it "updates a customer whose values changed" do
@@ -55,7 +55,7 @@ RSpec.describe Importer::Customers::Upsert do
       described_class.new(accepted: [accepted(2, reference: "C1", city: "Nantes")], source: source, report: second_report).call
 
       expect(Customer.find_by(reference: "C1").city).to eq("Nantes")
-      expect(second_report.tallies[[source, :customers]]).to have_attributes(accepted: 1, created: 0, updated: 1, unchanged: 0)
+      expect(second_report.bilans[[source, :customers]]).to have_attributes(accepted: 1, created: 0, updated: 1, unchanged: 0)
     end
 
     # Un client qui n'a plus d'adresse de livraison ne doit pas garder l'ancienne.
@@ -88,7 +88,7 @@ RSpec.describe Importer::Customers::Upsert do
     it "does not count the rejected rows as accepted" do
       upsert([accepted(2, reference: "C1"), accepted(3, reference: "C1"), accepted(4, reference: "C2")])
 
-      expect(tally).to have_attributes(accepted: 1, created: 1, updated: 0, unchanged: 0)
+      expect(bilan).to have_attributes(accepted: 1, created: 1, updated: 0, unchanged: 0)
     end
   end
 
@@ -96,7 +96,7 @@ RSpec.describe Importer::Customers::Upsert do
     upsert([])
 
     expect(Customer.count).to eq(0)
-    expect(tally).to have_attributes(accepted: 0, created: 0, updated: 0, unchanged: 0)
+    expect(bilan).to have_attributes(accepted: 0, created: 0, updated: 0, unchanged: 0)
   end
 
   describe "with the client's customers export" do
@@ -119,7 +119,7 @@ RSpec.describe Importer::Customers::Upsert do
     # 4 994 lignes retenues, dont 6 portant l'une des 3 références lues deux fois.
     it "imports every customer but those whose reference is read twice" do
       expect(Customer.count).to eq(4988)
-      expect(@first_report.tallies[["export_clients_cavegest.xlsx", :customers]])
+      expect(@first_report.bilans[["export_clients_cavegest.xlsx", :customers]])
         .to have_attributes(accepted: 4988, created: 4988, updated: 0, unchanged: 0)
     end
 
@@ -130,7 +130,7 @@ RSpec.describe Importer::Customers::Upsert do
     end
 
     it "writes nothing when replayed" do
-      expect(@second_report.tallies[["export_clients_cavegest.xlsx", :customers]])
+      expect(@second_report.bilans[["export_clients_cavegest.xlsx", :customers]])
         .to have_attributes(accepted: 4988, created: 0, updated: 0, unchanged: 4988)
     end
   end

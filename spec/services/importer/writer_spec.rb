@@ -4,10 +4,10 @@ RSpec.describe Importer::Writer do
   let(:writer) { described_class.new(model: Customer, key: [:reference], columns: %i[reference company_name city]) }
 
   it "creates the records, and reports how many" do
-    tally = writer.call([{ reference: "C1", city: "Lyon" }, { reference: "C2", city: "Nantes" }])
+    bilan = writer.call([{ reference: "C1", city: "Lyon" }, { reference: "C2", city: "Nantes" }])
 
     expect(Customer.pluck(:reference, :city)).to contain_exactly(["C1", "Lyon"], ["C2", "Nantes"])
-    expect(tally).to have_attributes(accepted: 2, created: 2, updated: 0, unchanged: 0)
+    expect(bilan).to have_attributes(accepted: 2, created: 2, updated: 0, unchanged: 0)
   end
 
   it "writes nothing the second time" do
@@ -52,10 +52,10 @@ RSpec.describe Importer::Writer do
     it "tells records apart by all the columns of the key" do
       writer.call([{ product_id: product.id, grid_code: "DEPC", amount_ht: BigDecimal("10") }])
 
-      tally = writer.call([{ product_id: product.id, grid_code: "DEPC", amount_ht: BigDecimal("10") },
+      bilan = writer.call([{ product_id: product.id, grid_code: "DEPC", amount_ht: BigDecimal("10") },
                            { product_id: product.id, grid_code: "CHR", amount_ht: BigDecimal("9") }])
 
-      expect(tally).to have_attributes(created: 1, updated: 0, unchanged: 1)
+      expect(bilan).to have_attributes(created: 1, updated: 0, unchanged: 1)
       expect(ProductPrice.pluck(:grid_code, :amount_ht)).to contain_exactly(["DEPC", BigDecimal("10")], ["CHR", BigDecimal("9")])
     end
   end

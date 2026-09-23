@@ -16,7 +16,7 @@ class Importer::Writer
   # rows - Array de Hash, un par enregistrement, sans doublon de clé. Une colonne absente d'un
   #        enregistrement est écrite à nil : une valeur que le fichier ne porte plus est effacée.
   #
-  # Renvoie le bilan de l'écriture (MigrationReport::Tally).
+  # Renvoie le bilan de l'écriture (MigrationReport::Bilan).
   def call(rows)
     rows     = rows.map { |row| @columns.to_h { |column| [column, row[column]] } }
     existing = existing_rows(rows)
@@ -26,7 +26,7 @@ class Importer::Writer
 
     write(to_create + to_update)
 
-    MigrationReport::Tally.new(accepted: rows.size, created: to_create.size, updated: to_update.size,
+    MigrationReport::Bilan.new(accepted: rows.size, created: to_create.size, updated: to_update.size,
                                unchanged: rows.size - to_create.size - to_update.size)
   end
 

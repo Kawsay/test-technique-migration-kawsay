@@ -18,9 +18,9 @@ class Importer::Customers::Upsert
 
   def call
     writer = Importer::Writer.new(model: Customer, key: [KEY], columns: Importer::Customers::ATTRIBUTES)
-    tally  = writer.call(without_duplicates.map { |accepted| accepted.attributes })
+    bilan  = writer.call(without_duplicates.map { |accepted| accepted.attributes })
 
-    @report.record_tally(@source, :customers, tally)
+    @report.record_bilan(@source, :customers, bilan)
   end
 
   private

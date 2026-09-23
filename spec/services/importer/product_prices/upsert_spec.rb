@@ -19,7 +19,7 @@ RSpec.describe Importer::ProductPrices::Upsert do
     described_class.new(accepted: accepted_products, source: source, report: report).call
   end
 
-  def tally(entity, report: self.report) = report.tallies[[source, entity]]
+  def bilan(entity, report: self.report) = report.bilans[[source, entity]]
 
   def prices_in_database
     ProductPrice.joins(:product).pluck("products.reference", :grid_code, :amount_ht)
@@ -41,8 +41,8 @@ RSpec.describe Importer::ProductPrices::Upsert do
   it "reports how many products and prices were created" do
     upsert([accepted(2, prices: { "DEPC" => "10.00", "CHR" => "9.00" })])
 
-    expect(tally(:products)).to have_attributes(accepted: 1, created: 1, updated: 0, unchanged: 0)
-    expect(tally(:product_prices)).to have_attributes(accepted: 2, created: 2, updated: 0, unchanged: 0)
+    expect(bilan(:products)).to have_attributes(accepted: 1, created: 1, updated: 0, unchanged: 0)
+    expect(bilan(:product_prices)).to have_attributes(accepted: 2, created: 2, updated: 0, unchanged: 0)
   end
 
   describe "replaying the same file" do
@@ -55,8 +55,8 @@ RSpec.describe Importer::ProductPrices::Upsert do
       upsert(products, report: second_report)
 
       expect(Product.pluck(:updated_at) + ProductPrice.pluck(:updated_at)).to eq(written_at)
-      expect(tally(:products, report: second_report)).to have_attributes(created: 0, updated: 0, unchanged: 1)
-      expect(tally(:product_prices, report: second_report)).to have_attributes(created: 0, updated: 0, unchanged: 2)
+      expect(bilan(:products, report: second_report)).to have_attributes(created: 0, updated: 0, unchanged: 1)
+      expect(bilan(:product_prices, report: second_report)).to have_attributes(created: 0, updated: 0, unchanged: 2)
     end
 
     it "updates a price that changed" do
@@ -66,7 +66,7 @@ RSpec.describe Importer::ProductPrices::Upsert do
       upsert([accepted(2, prices: { "DEPC" => "11.00" })], report: second_report)
 
       expect(prices_in_database).to eq([["REF1", "DEPC", BigDecimal("11")]])
-      expect(tally(:product_prices, report: second_report)).to have_attributes(created: 0, updated: 1, unchanged: 0)
+      expect(bilan(:product_prices, report: second_report)).to have_attributes(created: 0, updated: 1, unchanged: 0)
     end
 
     it "removes a price whose grid is now empty" do
@@ -121,8 +121,8 @@ RSpec.describe Importer::ProductPrices::Upsert do
     upsert([])
 
     expect(Product.count).to eq(0)
-    expect(tally(:products)).to have_attributes(accepted: 0, created: 0, updated: 0, unchanged: 0)
-    expect(tally(:product_prices)).to have_attributes(accepted: 0, created: 0, updated: 0, unchanged: 0)
+    expect(bilan(:products)).to have_attributes(accepted: 0, created: 0, updated: 0, unchanged: 0)
+    expect(bilan(:product_prices)).to have_attributes(accepted: 0, created: 0, updated: 0, unchanged: 0)
   end
 
   describe "with the client's price list export" do
@@ -150,7 +150,7 @@ RSpec.describe Importer::ProductPrices::Upsert do
     # 113 lignes retenues, dont 12 portant l'une des 6 références lues deux fois.
     it "imports every product but those whose reference is read twice" do
       expect(Product.count).to eq(101)
-      expect(@first_report.tallies[["export_tarifs_cavegest.csv", :products]])
+      expect(@first_report.bilans[["export_tarifs_cavegest.csv", :products]])
         .to have_attributes(accepted: 101, created: 101, updated: 0, unchanged: 0)
     end
 
@@ -165,9 +165,9 @@ RSpec.describe Importer::ProductPrices::Upsert do
     end
 
     it "writes nothing when replayed" do
-      expect(@second_report.tallies[["export_tarifs_cavegest.csv", :products]])
+      expect(@second_report.bilans[["export_tarifs_cavegest.csv", :products]])
         .to have_attributes(accepted: 101, created: 0, updated: 0, unchanged: 101)
-      expect(@second_report.tallies[["export_tarifs_cavegest.csv", :product_prices]])
+      expect(@second_report.bilans[["export_tarifs_cavegest.csv", :product_prices]])
         .to have_attributes(created: 0, updated: 0, unchanged: 449)
     end
   end

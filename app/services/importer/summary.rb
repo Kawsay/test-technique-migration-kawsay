@@ -7,14 +7,14 @@ class Importer::Summary
   end
 
   def to_s
-    (tallies + counts_by_level).join("\n")
+    (bilans + counts_by_level).join("\n")
   end
 
   private
 
-  def tallies
-    @report.tallies.map do |(source, entity), tally|
-      "#{source}, #{ENTITIES.fetch(entity)} : #{tally.created} créés, #{tally.updated} mis à jour, #{tally.unchanged} inchangés"
+  def bilans
+    @report.bilans.map do |(source, entity), bilan|
+      "#{source}, #{ENTITIES.fetch(entity)} : #{bilan.created} créés, #{bilan.updated} mis à jour, #{bilan.unchanged} inchangés"
     end
   end
 
